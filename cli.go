@@ -14,9 +14,9 @@ type CLIOptions struct {
 	BindAddress *string
 	Wait        *int
 	HostName    *string
-	IsDryRun    *bool
-	IsHelp      *bool
-	IsVersion   *bool
+	isDryRun    *bool
+	isHelp      *bool
+	isVersion   *bool
 }
 
 type cliBuilder struct {
@@ -76,17 +76,17 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 	})
 	os.Setenv("HOSTNAME", *options.HostName)
 
-	options.IsDryRun = b.cli.BoolOpt("d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
-	options.IsHelp = b.cli.BoolOpt("h help", false, "Displays this help message")
-	options.IsVersion = b.cli.BoolOpt("v version", false, "Displays the version")
+	options.isDryRun = b.cli.BoolOpt("d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
+	options.isHelp = b.cli.BoolOpt("h help", false, "Displays this help message")
+	options.isVersion = b.cli.BoolOpt("v version", false, "Displays the version")
 
 	b.cli.Before = func() {
-		if *options.IsHelp {
+		if *options.isHelp {
 			b.cli.PrintLongHelp()
 			os.Exit(0)
 		}
 
-		if *options.IsVersion {
+		if *options.isVersion {
 			fmt.Printf("Version: %s\n", b.version)
 			if b.build != "" {
 				fmt.Printf("  Build: %s\n", b.build)
@@ -94,7 +94,7 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 			os.Exit(0)
 		}
 
-		if *options.IsDryRun {
+		if *options.isDryRun {
 			rlog.Info("Dry run!")
 		}
 
@@ -116,7 +116,7 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 			}
 		}
 
-		if *options.IsDryRun {
+		if *options.isDryRun {
 			if b.serviceStarter != nil {
 				err := b.serviceStarter.Stop(false)
 				if err != nil {
