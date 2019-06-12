@@ -1,2 +1,3 @@
-# mowhelpers
-Helpers for building CLI applications using `mow`
+# Athena
+
+Wisely building web applications
