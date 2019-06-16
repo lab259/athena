@@ -20,6 +20,9 @@ func Service(cmd *cli.Cmd) {
 	cmd.StringArgPtr(&data.Service, "SERVICE", "", "service name")
 
 	cmd.Action = func() {
+		data.Service = strcase.ToCamel(data.Service)
+		data.Package = strcase.ToSnake(data.Package)
+
 		dir, err := os.Getwd()
 		util.HandleError(err, "Unable to get current directory.")
 
