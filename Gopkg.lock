@@ -25,6 +25,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:be3bd107094de27145a9a92e9e5e2b3eb03d3d92a5dec68da31b8eba4e4c6ae2"
+  name = "github.com/iancoleman/strcase"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e506e3ef73653e84c592ba44aab577a46678f68c"
+
+[[projects]]
+  branch = "master"
   digest = "1:8b28915d30e068b130e2c86a725d41e8c221cdcb4307c69e67bdc3cf9aabd286"
   name = "github.com/jamillosantos/macchiato"
   packages = ["."]
@@ -256,6 +264,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/iancoleman/strcase",
     "github.com/jamillosantos/macchiato",
     "github.com/jawher/mow.cli",
     "github.com/lab259/go-rscsrv",

@@ -93,7 +93,6 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 		Desc:   "The name of the station running the app instance",
 		EnvVar: "HOSTNAME",
 	})
-	os.Setenv("HOSTNAME", *options.Hostname)
 
 	options.isDryRun = b.cli.BoolOpt("d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
 
@@ -105,6 +104,8 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 	b.cli.Version("v version", version.String())
 
 	b.cli.Before = func() {
+		os.Setenv("HOSTNAME", *options.Hostname)
+
 		if *options.isDryRun {
 			rlog.Trace(1, "This is a dry run!")
 		}
