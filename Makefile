@@ -6,12 +6,11 @@ COVERAGEFILE=$(COVERDIR)/cover.out
 
 EXAMPLES=$(shell ls ./examples/)
 
-.PHONY: deps deps-ci coverage coverage-ci test test-watch coverage coverage-html
-
-run:
-	@$(GOPATHCMD) go run examples/$(EXAMPLE)/main.go
+VERSION := `git describe --exact-match --tags 2> /dev/null || git rev-parse HEAD`
+LDFLAGS=-X=main.version=$(VERSION)
 
 build:
+	@$(GOPATHCMD) go build "-ldflags=$(LDFLAGS) -s -w" -o ./bin/athena -v ./athena
 	@test -d ./examples && $(foreach example,$(EXAMPLES),$(GOPATHCMD) go build "-ldflags=$(LDFLAGS)" -o ./bin/$(example) -v ./examples/$(example) &&) :
 
 test:
@@ -45,3 +44,5 @@ vet:
 
 fmt:
 	@$(GOPATHCMD) gofmt -e -s -d *.go
+
+.PHONY: deps deps-ci coverage coverage-ci test test-watch coverage coverage-html
