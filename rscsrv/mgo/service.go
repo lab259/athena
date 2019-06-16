@@ -1,4 +1,4 @@
-package rscsrv
+package mgo
 
 import (
 	"github.com/globalsign/mgo"
