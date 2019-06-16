@@ -5,7 +5,6 @@ import (
 
 	cli "github.com/jawher/mow.cli"
 	"github.com/lab259/athena/athena/make"
-	"github.com/lab259/athena/athena/setup"
 )
 
 var (
@@ -17,10 +16,8 @@ func main() {
 
 	app.Version("v version", version)
 
-	app.Command("make:service", "Generate a service file", make.Service)
-	app.Command("make:model", "Generate a model file", make.Model)
-
-	app.Command("setup:sra", "Setup sra service", setup.Sra)
+	app.Command("make:service", "Generate a service", make.Service)
+	app.Command("make:model", "Generate a model", make.Model)
 
 	app.Run(os.Args)
 }
