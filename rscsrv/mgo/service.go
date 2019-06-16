@@ -12,14 +12,14 @@ type MgoService struct {
 }
 
 func (service *MgoService) Name() string {
-	return "Mongo Service"
+	return "Mgo Service"
 }
 
 var DefaultMgoService MgoService
 
 func (service *MgoService) LoadConfiguration() (interface{}, error) {
 	var configuration mgosrv.MgoServiceConfiguration
-	err := config.Load("mgo-main.yml", &configuration)
+	err := config.Load("mgo-service.yml", &configuration)
 	if err != nil {
 		return nil, err
 	}

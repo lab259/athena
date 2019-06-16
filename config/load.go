@@ -7,7 +7,18 @@ import (
 	rscsrv "github.com/lab259/go-rscsrv"
 )
 
-// Environment return current environment (for example: `test` or `development`).
+// ProjectRoot return project root (from "PROJECT_ROOT" or current working directory).
+func ProjectRoot() string {
+	projectRoot := os.Getenv("PROJECT_ROOT")
+	if projectRoot == "" {
+		if dir, err := os.Getwd(); err == nil {
+			return dir
+		}
+	}
+	return projectRoot
+}
+
+// Environment return current environment (from "ENV").
 func Environment() string {
 	env := os.Getenv("ENV")
 	if env == "" {
@@ -17,7 +28,7 @@ func Environment() string {
 }
 
 func configurationFolder() string {
-	projectRoot := os.Getenv("PROJECT_ROOT")
+	projectRoot := ProjectRoot()
 	if projectRoot == "" {
 		return path.Join("configs", Environment())
 	}
