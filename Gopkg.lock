@@ -10,6 +10,20 @@
   version = "v1.7.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:78102ee4d536347316bc42e818340cc50902e45dbd7fdd524c5a1fc0cb07b588"
+  name = "github.com/globalsign/mgo"
+  packages = [
+    ".",
+    "bson",
+    "internal/json",
+    "internal/sasl",
+    "internal/scram",
+  ]
+  pruneopts = "UT"
+  revision = "eeefdecb41b842af6dc652aaea4026e8403e62df"
+
+[[projects]]
   digest = "1:a1038ef593beb4771c8f0f9c26e8b00410acd800af5c6864651d9bf160ea1813"
   name = "github.com/hpcloud/tail"
   packages = [
@@ -57,6 +71,14 @@
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:01ed62f8f4f574d8aff1d88caee113700a2b44c42351943fa73cc1808f736a50"
+  name = "github.com/jinzhu/inflection"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f5c5f50e6090ae76a29240b61ae2a90dd810112e"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:589fb1a525a9596f15cf90064ad57cfad5de59b3579e91f272f470ab49051647"
   name = "github.com/klauspost/compress"
   packages = [
@@ -83,6 +105,22 @@
   pruneopts = "UT"
   revision = "db5ebd4d519ae7f3096f1b13c21097305b11fffa"
   version = "v0.1.0"
+
+[[projects]]
+  digest = "1:4d5b2b39802091fde8fc13a381d88c4b7ec77481d4add408a14ec0ac95571a5f"
+  name = "github.com/lab259/go-rscsrv-mgo"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e3f732c313cff4c6e232aa6ae7af2310e6fee044"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:40113857a4df0e35b4609b82bf0d660e98c0b8c0fdccc99dfd57028f0a5aab81"
+  name = "github.com/lab259/http"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "11fe5e82d42c2b31f9f93b793ad4aa5b01a3b268"
+  version = "v0.0.2"
 
 [[projects]]
   digest = "1:b625eb1694124e10a585355e4605f35b2cef495841c1015ecbee7019fa2b0e35"
@@ -264,10 +302,13 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/globalsign/mgo",
     "github.com/iancoleman/strcase",
     "github.com/jamillosantos/macchiato",
     "github.com/jawher/mow.cli",
+    "github.com/jinzhu/inflection",
     "github.com/lab259/go-rscsrv",
+    "github.com/lab259/go-rscsrv-mgo",
     "github.com/lab259/rlog",
     "github.com/onsi/ginkgo",
     "github.com/onsi/ginkgo/reporters",

@@ -17,6 +17,7 @@ func main() {
 	app.Version("v version", version)
 
 	app.Command("make:service", "Generate a service file", make.Service)
+	app.Command("make:model", "Generate a model file", make.Model)
 
 	app.Run(os.Args)
 }
