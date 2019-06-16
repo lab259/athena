@@ -2,6 +2,54 @@
 
 
 [[projects]]
+  digest = "1:55388fd080150b9a072912f97b1f5891eb0b50df43401f8b75fb4273d3fec9fc"
+  name = "github.com/Masterminds/semver"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c7af12943936e8c39859482e61f0574c2fd7fc75"
+  version = "v1.4.2"
+
+[[projects]]
+  digest = "1:93055480fb5bfa99ec68c5cc63478d9d90f07814c09c5dc0388a52b09e839531"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/ini",
+    "internal/sdkio",
+    "internal/sdkrand",
+    "internal/sdkuri",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/json/jsonutil",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/xml/xmlutil",
+    "service/sqs",
+    "service/sts",
+  ]
+  pruneopts = "UT"
+  revision = "78c38e1a35a0ae2c4f60bd83e9c68bcb651744d1"
+  version = "v1.20.1"
+
+[[projects]]
   digest = "1:865079840386857c809b72ce300be7580cb50d3d3129ce11bf9aa6ca2bc1934a"
   name = "github.com/fatih/color"
   packages = ["."]
@@ -22,6 +70,14 @@
   ]
   pruneopts = "UT"
   revision = "eeefdecb41b842af6dc652aaea4026e8403e62df"
+
+[[projects]]
+  digest = "1:bed9d72d596f94e65fff37f4d6c01398074a6bb1c3f3ceff963516bd01db6ff5"
+  name = "github.com/gofrs/uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "6b08a5c5172ba18946672b49749cde22873dd7c2"
+  version = "v3.2.0"
 
 [[projects]]
   digest = "1:a1038ef593beb4771c8f0f9c26e8b00410acd800af5c6864651d9bf160ea1813"
@@ -79,6 +135,13 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2b33e84"
+
+[[projects]]
   digest = "1:589fb1a525a9596f15cf90064ad57cfad5de59b3579e91f272f470ab49051647"
   name = "github.com/klauspost/compress"
   packages = [
@@ -123,12 +186,28 @@
   version = "v0.0.2"
 
 [[projects]]
+  digest = "1:79bdefc14ec503f15e6877fc3034c52fb209e6e32d2b146867ae947db941258d"
+  name = "github.com/lab259/http-sqs-service"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3b3f735a89d96c17260cc0e80805c749e4bb8b36"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:b625eb1694124e10a585355e4605f35b2cef495841c1015ecbee7019fa2b0e35"
   name = "github.com/lab259/rlog"
   packages = ["."]
   pruneopts = "UT"
   revision = "1ce2ad90a21c4c1c3aa9dbf98c5cba99cb3eb76e"
   version = "v2.0.1"
+
+[[projects]]
+  digest = "1:b741a7ff17773b9c07dec1f36e03963a38843af87fa4a7dd3a284e1e04edca4f"
+  name = "github.com/lab259/sra-sdk"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "cf487029cd65314f1bc767bfab04e0ec9c789625"
+  version = "v0.0.1"
 
 [[projects]]
   digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
@@ -309,11 +388,14 @@
     "github.com/jinzhu/inflection",
     "github.com/lab259/go-rscsrv",
     "github.com/lab259/go-rscsrv-mgo",
+    "github.com/lab259/http-sqs-service",
     "github.com/lab259/rlog",
+    "github.com/lab259/sra-sdk",
     "github.com/onsi/ginkgo",
     "github.com/onsi/ginkgo/reporters",
     "github.com/onsi/gomega",
     "github.com/valyala/fasthttp",
+    "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
