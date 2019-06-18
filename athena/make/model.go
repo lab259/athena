@@ -51,20 +51,33 @@ func Model(cmd *cli.Cmd) {
 			err := os.MkdirAll(serviceDir, os.ModePerm)
 			util.HandleError(err, "Unable to create services directory.")
 
+			err = template.Write(templates_mongo.ServiceTestsTemplate, &data, path.Join(serviceDir, fmt.Sprintf("%s_test.go", data.Collection)))
+			util.HandleError(err, "Unable to create service tests.")
+
 			err = template.Write(templates_mongo.CreateServiceTemplate, &data, path.Join(serviceDir, "create.go"))
-			util.HandleError(err, "Unable to create create service template.")
+			util.HandleError(err, "Unable to create create service.")
+			err = template.Write(templates_mongo.CreateServiceTestTemplate, &data, path.Join(serviceDir, "create_test.go"))
+			util.HandleError(err, "Unable to create create service tests.")
 
 			err = template.Write(templates_mongo.UpdateServiceTemplate, &data, path.Join(serviceDir, "update.go"))
-			util.HandleError(err, "Unable to create update service template.")
+			util.HandleError(err, "Unable to create update service.")
+			err = template.Write(templates_mongo.UpdateServiceTestTemplate, &data, path.Join(serviceDir, "update_test.go"))
+			util.HandleError(err, "Unable to create update service tests.")
 
 			err = template.Write(templates_mongo.DeleteServiceTemplate, &data, path.Join(serviceDir, "delete.go"))
-			util.HandleError(err, "Unable to create delete service template.")
+			util.HandleError(err, "Unable to create delete service.")
+			err = template.Write(templates_mongo.DeleteServiceTestTemplate, &data, path.Join(serviceDir, "delete_test.go"))
+			util.HandleError(err, "Unable to create delete service tests.")
 
 			err = template.Write(templates_mongo.ListServiceTemplate, &data, path.Join(serviceDir, "list.go"))
-			util.HandleError(err, "Unable to create list service template.")
+			util.HandleError(err, "Unable to create list service.")
+			err = template.Write(templates_mongo.ListServiceTestTemplate, &data, path.Join(serviceDir, "list_test.go"))
+			util.HandleError(err, "Unable to create list service tests.")
 
 			err = template.Write(templates_mongo.FindServiceTemplate, &data, path.Join(serviceDir, "find.go"))
-			util.HandleError(err, "Unable to create find service template.")
+			util.HandleError(err, "Unable to create find service.")
+			err = template.Write(templates_mongo.FindServiceTestTemplate, &data, path.Join(serviceDir, "find_test.go"))
+			util.HandleError(err, "Unable to create find service tests.")
 		}
 
 		fmt.Printf("%s was created.\n", modelFile)

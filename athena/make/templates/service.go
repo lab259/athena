@@ -70,3 +70,16 @@ var _ = Describe("Services", func() {
 	})
 })
 `)
+
+var ServiceTestsTemplate = template.New("package_test.go", `package {{.Package}}_test
+
+import (
+	"testing"
+
+	"github.com/lab259/athena/testing/ginkgo"
+)
+
+func Test{{toCamel .Package}}(t *testing.T) {
+	ginkgo.Init("{{toCamel .Project}}/Services/{{toCamel .Package}} Test Suite", t)
+}
+`)
