@@ -75,10 +75,10 @@ var ServiceTestsTemplate = template.New("package_test.go", `package {{.Package}}
 import (
 	"testing"
 
-	"github.com/lab259/athena/testing/ginkgo"
+	"github.com/lab259/athena/testing/ginkgotest"
 )
 
 func Test{{toCamel .Package}}(t *testing.T) {
-	ginkgo.Init("{{toCamel .Project}}/Services/{{toCamel .Package}} Test Suite", t)
+	ginkgotest.Init("{{toCamel .Project}}/Services/{{toCamel .Package}} Test Suite", t)
 }
 `)

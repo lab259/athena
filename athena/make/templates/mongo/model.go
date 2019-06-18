@@ -17,7 +17,7 @@ import (
 	"context"
 	{{if .WithRepository}}
 	"github.com/lab259/repository"
-	"github.com/lab259/athena/rscsrv/mgo"
+	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
 	"github.com/gofrs/uuid"
 	{{end}}
 )
@@ -34,7 +34,7 @@ type {{.Model}} struct {
 func New{{.Model}}Repository(ctx context.Context) *repository.Repository {
 	return repository.NewRepository(repository.RepositoryConfig{
 		Collection:  "{{.Collection}}",
-  		QueryRunner: &mgo.DefaultMgoService,
+  		QueryRunner: &mgorscsrv.DefaultMgoService,
 	})
 }
 {{end}}

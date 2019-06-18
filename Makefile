@@ -1,5 +1,5 @@
 GOPATH=$(CURDIR)/../../../../
-GOPATHCMD=GOPATH=$(GOPATH)
+GOPATHCMD=PROJECT_ROOT=$(CURDIR) GOPATH=$(GOPATH)
 
 COVERDIR=$(CURDIR)/.cover
 COVERAGEFILE=$(COVERDIR)/cover.out
@@ -37,7 +37,7 @@ dep-ensure:
 	@$(GOPATHCMD) dep ensure -v
 
 dep-update:
-	@$(GOPATHCMD) dep update -v $(PACKAGE)
+	@$(GOPATHCMD) dep ensure -update -v $(PACKAGE)
 
 vet:
 	@$(GOPATHCMD) go vet ./...

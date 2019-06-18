@@ -60,8 +60,13 @@ var CreateServiceTestTemplate = template.New("create_test.go", `package {{.Colle
 import (
 	"context"
 
+	"github.com/lab259/{{.Project}}/models"
 	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
-	
+	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
+	"github.com/lab259/athena/testing/rscsrvtest"
+	"github.com/lab259/athena/testing/mgotest"
+	"github.com/gofrs/uuid"
+	"github.com/felipemfp/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -69,16 +74,32 @@ import (
 var _ = Describe("Services", func() {
 	Describe("{{toCamel .Collection}}", func() {
 		Describe("Create", func() {
-			
-			PIt("TODO", func() {
-				ctx := context.Background()
 
+			BeforeEach(func() {
+				rscsrvtest.Start(&mgorscsrv.DefaultMgoService)
+				mgotest.ClearDefaultMgoService("")
+			})
+			
+			It("should create", func() {
+				ctx := context.Background()
+				repo := models.New{{.Model}}Repository(ctx)
+				
 				input := {{.Collection}}.CreateInput{}
+				Expect(faker.FakeData(&input)).To(Succeed())
 
 				output, err := {{.Collection}}.Create(ctx, &input)
-				
 				Expect(err).ToNot(HaveOccurred())
-				Expect(output).ToNot(BeNil())
+
+				Expect(output.{{$.Model}}.ID).ToNot(Equal(uuid.Nil))
+				{{range .Fields}}Expect(output.{{$.Model}}.{{formatFieldName .}}).To(Equal(input.{{formatFieldName .}}))
+				{{end}}
+
+				var obj models.{{.Model}}
+				
+				Expect(repo.FindByID(output.{{.Model}}.ID, &obj)).To(Succeed())
+
+				{{range .Fields}}Expect(obj.{{formatFieldName .}}).To(Equal(input.{{formatFieldName .}}))
+				{{end}}
 			})
 		})
 	})
