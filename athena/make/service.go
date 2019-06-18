@@ -16,8 +16,11 @@ import (
 func Service(cmd *cli.Cmd) {
 	var data serviceTemplateData
 
+	cmd.Spec = "PACKAGE SERVICE INPUT_FIELD..."
+
 	cmd.StringArgPtr(&data.Package, "PACKAGE", "", "package name")
 	cmd.StringArgPtr(&data.Service, "SERVICE", "", "service name")
+	cmd.StringsArgPtr(&data.Fields, "INPUT_FIELD", []string{}, "input field (eg.: Name:string)")
 
 	cmd.Action = func() {
 		data.Service = strcase.ToCamel(data.Service)
@@ -48,18 +51,22 @@ func Service(cmd *cli.Cmd) {
 type serviceTemplateData struct {
 	Service string
 	Package string
+	Fields  []string
 }
 
-var serviceTemplate = template.Must(template.New("make:service").Parse(`package {{.Package}}
+var serviceTemplate = template.Must(template.New("make:service").Funcs(fieldFunctions).Parse(`package {{.Package}}
 
 import (
 	"context"
+
+	"github.com/lab259/athena/validator"
 	"github.com/lab259/errors"
 )
 
 // {{.Service}}Input holds input information for {{.Service}} service
 type {{.Service}}Input struct {
-	// TODO
+	{{range .Fields}}{{formatField .}}  ` + "`" + `json:"{{formatFieldTag .}}" {{if hasValidation .}}validate:"{{formatValidation .}}"{{end}}` + "`" + `
+	{{end}}
 }
 
 // {{.Service}}Output holds the output information from {{.Service}} service
@@ -69,6 +76,11 @@ type {{.Service}}Output struct {
 
 // {{.Service}} TODO
 func {{.Service}}(ctx context.Context, input *{{.Service}}Input) (*{{.Service}}Output, error) {
-	return nil, errors.New("not implemented")
+	err := validator.Validate(input)
+	if err != nil {
+		return nil, errors.Wrap(err, errors.Validation(), errors.Module("{{.Package}}_service"))
+	}
+
+	panic(errors.New("not implemented"))
 }
 `))
