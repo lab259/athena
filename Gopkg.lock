@@ -43,14 +43,6 @@
   version = "v0.16.0"
 
 [[projects]]
-  digest = "1:bed9d72d596f94e65fff37f4d6c01398074a6bb1c3f3ceff963516bd01db6ff5"
-  name = "github.com/gofrs/uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "6b08a5c5172ba18946672b49749cde22873dd7c2"
-  version = "v3.2.0"
-
-[[projects]]
   digest = "1:a1038ef593beb4771c8f0f9c26e8b00410acd800af5c6864651d9bf160ea1813"
   name = "github.com/hpcloud/tail"
   packages = [
@@ -126,14 +118,6 @@
   version = "v1.2.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:4534c84fa7e3752325d4f8657fe39c6e0188b8336d8a340c5cec840bc9ca1f13"
-  name = "github.com/lab259/errors"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "18f05663b7524a6b64db1056e2c44475775c1298"
-
-[[projects]]
   digest = "1:b7a7153f385c5abb03409c8f350c874ad913fa73dfdabc012c88b4e2b582427c"
   name = "github.com/lab259/go-rscsrv"
   packages = ["."]
@@ -156,22 +140,6 @@
   pruneopts = "UT"
   revision = "11fe5e82d42c2b31f9f93b793ad4aa5b01a3b268"
   version = "v0.0.2"
-
-[[projects]]
-  digest = "1:9fdcc43c8e046be38794d0056eb5048654e201ece112cf61d13aafdfddc6dd95"
-  name = "github.com/lab259/mgohelpers"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "a0bb81af6f6e423430f31f8e9f89a131f03297f4"
-  version = "v0.2.0"
-
-[[projects]]
-  digest = "1:9cb13f8339ecff516be123441d2b702d2448568a5850652e42fe3b69ef158cad"
-  name = "github.com/lab259/repository"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "043b8035478015b2fe5319782db4203994fa9ad9"
-  version = "v0.4.0"
 
 [[projects]]
   digest = "1:b625eb1694124e10a585355e4605f35b2cef495841c1015ecbee7019fa2b0e35"
@@ -370,16 +338,12 @@
   analyzer-version = 1
   input-imports = [
     "github.com/globalsign/mgo",
-    "github.com/gofrs/uuid",
     "github.com/iancoleman/strcase",
     "github.com/jamillosantos/macchiato",
     "github.com/jawher/mow.cli",
     "github.com/jinzhu/inflection",
-    "github.com/lab259/errors",
     "github.com/lab259/go-rscsrv",
     "github.com/lab259/go-rscsrv-mgo",
-    "github.com/lab259/mgohelpers",
-    "github.com/lab259/repository",
     "github.com/lab259/rlog",
     "github.com/onsi/ginkgo",
     "github.com/onsi/ginkgo/reporters",
