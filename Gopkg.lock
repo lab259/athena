@@ -11,6 +11,17 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:23d749caca2b2caab37e904a064c317fb4ddc86063fff93715acf6ce9beddb9c"
+  name = "github.com/felipemfp/faker"
+  packages = [
+    ".",
+    "support/slice",
+  ]
+  pruneopts = "UT"
+  revision = "7b1b38a836077add3eef50676fbf66c3f097fca9"
+
+[[projects]]
+  branch = "master"
   digest = "1:78102ee4d536347316bc42e818340cc50902e45dbd7fdd524c5a1fc0cb07b588"
   name = "github.com/globalsign/mgo"
   packages = [
@@ -134,6 +145,14 @@
   version = "v1.2.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:4534c84fa7e3752325d4f8657fe39c6e0188b8336d8a340c5cec840bc9ca1f13"
+  name = "github.com/lab259/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "18f05663b7524a6b64db1056e2c44475775c1298"
+
+[[projects]]
   digest = "1:b7a7153f385c5abb03409c8f350c874ad913fa73dfdabc012c88b4e2b582427c"
   name = "github.com/lab259/go-rscsrv"
   packages = ["."]
@@ -156,6 +175,14 @@
   pruneopts = "UT"
   revision = "11fe5e82d42c2b31f9f93b793ad4aa5b01a3b268"
   version = "v0.0.2"
+
+[[projects]]
+  digest = "1:9fdcc43c8e046be38794d0056eb5048654e201ece112cf61d13aafdfddc6dd95"
+  name = "github.com/lab259/mgohelpers"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a0bb81af6f6e423430f31f8e9f89a131f03297f4"
+  version = "v0.2.0"
 
 [[projects]]
   digest = "1:9cb13f8339ecff516be123441d2b702d2448568a5850652e42fe3b69ef158cad"
@@ -369,6 +396,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/felipemfp/faker",
     "github.com/globalsign/mgo",
     "github.com/gofrs/uuid",
     "github.com/gosimple/slug",
@@ -376,8 +404,10 @@
     "github.com/jamillosantos/macchiato",
     "github.com/jawher/mow.cli",
     "github.com/jinzhu/inflection",
+    "github.com/lab259/errors",
     "github.com/lab259/go-rscsrv",
     "github.com/lab259/go-rscsrv-mgo",
+    "github.com/lab259/mgohelpers",
     "github.com/lab259/repository",
     "github.com/lab259/rlog",
     "github.com/onsi/ginkgo",

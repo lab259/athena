@@ -1,4 +1,4 @@
-package ginkgo
+package ginkgotest
 
 import (
 	"fmt"
@@ -9,14 +9,14 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/jamillosantos/macchiato"
 	"github.com/lab259/athena/config"
-	"github.com/lab259/athena/testing/env"
+	"github.com/lab259/athena/testing/envtest"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	"github.com/onsi/gomega"
 )
 
 func Init(description string, t *testing.T) {
-	env.Override(map[string]string{
+	envtest.Override(map[string]string{
 		"PROJECT_ROOT": config.ProjectRoot(),
 	}, func() error {
 		if os.Getenv("ENV") == "" {

@@ -1,4 +1,4 @@
-package mgo
+package mgorscsrv
 
 import (
 	"github.com/globalsign/mgo"

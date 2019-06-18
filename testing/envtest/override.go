@@ -1,4 +1,4 @@
-package env
+package envtest
 
 import "os"
 
