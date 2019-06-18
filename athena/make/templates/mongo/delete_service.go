@@ -37,3 +37,33 @@ func Delete(ctx context.Context, input *DeleteInput) (*DeleteOutput, error) {
 	}, nil
 }
 `)
+
+var DeleteServiceTestTemplate = template.New("delete_test.go", `package {{.Collection}}_test
+
+import (
+	"context"
+
+	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
+	
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Services", func() {
+	Describe("{{toCamel .Collection}}", func() {
+		Describe("Delete", func() {
+			
+			PIt("TODO", func() {
+				ctx := context.Background()
+
+				input := {{.Collection}}.DeleteInput{}
+
+				output, err := {{.Collection}}.Delete(ctx, &input)
+				
+				Expect(err).ToNot(HaveOccurred())
+				Expect(output).ToNot(BeNil())
+			})
+		})
+	})
+})
+`)

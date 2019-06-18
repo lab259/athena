@@ -38,3 +38,33 @@ func Find(ctx context.Context, input *FindInput) (*FindOutput, error) {
 	}, nil
 }
 `)
+
+var FindServiceTestTemplate = template.New("find_test.go", `package {{.Collection}}_test
+
+import (
+	"context"
+
+	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
+	
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Services", func() {
+	Describe("{{toCamel .Collection}}", func() {
+		Describe("Find", func() {
+			
+			PIt("TODO", func() {
+				ctx := context.Background()
+
+				input := {{.Collection}}.FindInput{}
+
+				output, err := {{.Collection}}.Find(ctx, &input)
+				
+				Expect(err).ToNot(HaveOccurred())
+				Expect(output).ToNot(BeNil())
+			})
+		})
+	})
+})
+`)

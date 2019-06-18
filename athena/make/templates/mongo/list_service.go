@@ -39,11 +39,41 @@ func List(ctx context.Context, input *ListInput) (*ListOutput, error) {
 		return nil, errors.Wrap(err,errors.Code("repository-find-failed"), errors.Module("users_service"))
 	}
 
-	return {
+	return &ListOutput{
 		Items: objs,
 		Total: total,
 		CurrentPage: currentPage,
 		PageSize: pageSize,
 	}, nil
 }
+`)
+
+var ListServiceTestTemplate = template.New("list_test.go", `package {{.Collection}}_test
+
+import (
+	"context"
+
+	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
+	
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Services", func() {
+	Describe("{{toCamel .Collection}}", func() {
+		Describe("List", func() {
+			
+			PIt("TODO", func() {
+				ctx := context.Background()
+
+				input := {{.Collection}}.ListInput{}
+
+				output, err := {{.Collection}}.List(ctx, &input)
+				
+				Expect(err).ToNot(HaveOccurred())
+				Expect(output).ToNot(BeNil())
+			})
+		})
+	})
+})
 `)

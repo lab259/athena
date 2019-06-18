@@ -40,7 +40,7 @@ func Update(ctx context.Context, input *UpdateInput) (*UpdateOutput, error) {
 	{{range .Fields}}updateSet.Add(&obj, &obj.{{formatFieldName .}}, input.{{formatFieldName .}})
 	{{end}}
 
-	err := repo.UpdateAndFind(input.{{.Model}}ID, &obj, updateSet)
+	err = repo.UpdateAndFind(input.{{.Model}}ID, &obj, updateSet)
 	if err != nil {
 		return nil, errors.Wrap(err, errors.Code("repository-update-failed"), errors.Module("users_service"))
 	}
@@ -49,4 +49,34 @@ func Update(ctx context.Context, input *UpdateInput) (*UpdateOutput, error) {
 		{{.Model}}: &obj,
 	}, nil
 }
+`)
+
+var UpdateServiceTestTemplate = template.New("update_test.go", `package {{.Collection}}_test
+
+import (
+	"context"
+
+	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
+	
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+var _ = Describe("Services", func() {
+	Describe("{{toCamel .Collection}}", func() {
+		Describe("Update", func() {
+			
+			PIt("TODO", func() {
+				ctx := context.Background()
+
+				input := {{.Collection}}.UpdateInput{}
+
+				output, err := {{.Collection}}.Update(ctx, &input)
+				
+				Expect(err).ToNot(HaveOccurred())
+				Expect(output).ToNot(BeNil())
+			})
+		})
+	})
+})
 `)
