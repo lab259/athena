@@ -1,20 +1,21 @@
 package make
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
-	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/iancoleman/strcase"
 	cli "github.com/jawher/mow.cli"
+	"github.com/lab259/athena/athena/make/templates"
 	"github.com/lab259/athena/athena/util"
+	"github.com/lab259/athena/athena/util/template"
+	"github.com/lab259/athena/config"
 )
 
 func Service(cmd *cli.Cmd) {
-	var data serviceTemplateData
+	var data templates.ServiceTemplateData
 
 	cmd.Spec = "PACKAGE SERVICE INPUT_FIELD..."
 
@@ -26,61 +27,25 @@ func Service(cmd *cli.Cmd) {
 		data.Service = strcase.ToCamel(data.Service)
 		data.Package = strcase.ToSnake(data.Package)
 
-		dir, err := os.Getwd()
-		util.HandleError(err, "Unable to get current directory.")
+		projectRoot := config.ProjectRoot()
+		data.Project = filepath.Base(projectRoot)
 
-		servicesDir := path.Join(dir, "services")
-		packageDir := path.Join(servicesDir, data.Package)
+		packageDir := path.Join(projectRoot, "services", data.Package)
 
-		err = os.MkdirAll(packageDir, os.ModePerm)
+		err := os.MkdirAll(packageDir, os.ModePerm)
 		util.HandleError(err, "Unable to create package directory.")
 
 		serviceFile := fmt.Sprintf("%s.go", path.Join(packageDir, strcase.ToSnake(data.Service)))
+		serviceTestFile := fmt.Sprintf("%s_test.go", path.Join(packageDir, strcase.ToSnake(data.Service)))
 
-		content := bytes.NewBuffer([]byte{})
-		err = serviceTemplate.Execute(content, &data)
-		util.HandleError(err, "Unable to execute service template.")
+		err = template.Write(templates.ServiceTemplate, &data, serviceFile)
+		util.HandleError(err, "Unable to create service.")
 
-		err = ioutil.WriteFile(serviceFile, content.Bytes(), 0644)
-		util.HandleError(err, "Unable to create service template.")
+		err = template.Write(templates.ServiceTestTemplate, &data, serviceTestFile)
+		util.HandleError(err, "Unable to create service tests.")
 
-		fmt.Printf("%s was created.\n", serviceFile)
+		fmt.Println("The following files were created:")
+		fmt.Printf("  %s\n", serviceFile)
+		fmt.Printf("  %s\n", serviceTestFile)
 	}
 }
-
-type serviceTemplateData struct {
-	Service string
-	Package string
-	Fields  []string
-}
-
-var serviceTemplate = template.Must(template.New("make:service").Funcs(fieldFunctions).Parse(`package {{.Package}}
-
-import (
-	"context"
-
-	"github.com/lab259/athena/validator"
-	"github.com/lab259/errors"
-)
-
-// {{.Service}}Input holds input information for {{.Service}} service
-type {{.Service}}Input struct {
-	{{range .Fields}}{{formatField .}}  ` + "`" + `json:"{{formatFieldTag .}}" {{if hasValidation .}}validate:"{{formatValidation .}}"{{end}}` + "`" + `
-	{{end}}
-}
-
-// {{.Service}}Output holds the output information from {{.Service}} service
-type {{.Service}}Output struct {
-	// TODO
-}
-
-// {{.Service}} TODO
-func {{.Service}}(ctx context.Context, input *{{.Service}}Input) (*{{.Service}}Output, error) {
-	err := validator.Validate(input)
-	if err != nil {
-		return nil, errors.Wrap(err, errors.Validation(), errors.Module("{{.Package}}_service"))
-	}
-
-	panic(errors.New("not implemented"))
-}
-`))
