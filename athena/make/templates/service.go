@@ -49,7 +49,6 @@ import (
 	
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/lab259/errors"
 )
 
 var _ = Describe("Services", func() {

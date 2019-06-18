@@ -28,6 +28,9 @@ func Model(cmd *cli.Cmd) {
 	cmd.BoolOptPtr(&data.WithCRUD, "crud", false, "with crud services")
 
 	cmd.Action = func() {
+		createdFiles := make([]string, 0, 12)
+		defer dumpFiles(&createdFiles)
+
 		data.Model = strcase.ToCamel(data.Model)
 		data.Collection = strcase.ToSnake(inflection.Plural(data.Model))
 		if data.WithCRUD {
@@ -45,41 +48,62 @@ func Model(cmd *cli.Cmd) {
 		modelFile := fmt.Sprintf("%s.go", path.Join(modelsDir, strcase.ToSnake(data.Model)))
 		err = template.Write(templates_mongo.ModelTemplate, &data, modelFile)
 		util.HandleError(err, "Unable to create model template.")
+		createdFiles = append(createdFiles, modelFile)
 
 		if data.WithCRUD {
 			serviceDir := path.Join(projectRoot, "services", data.Collection)
 			err := os.MkdirAll(serviceDir, os.ModePerm)
 			util.HandleError(err, "Unable to create services directory.")
 
-			err = template.Write(templates_mongo.ServiceTestsTemplate, &data, path.Join(serviceDir, fmt.Sprintf("%s_test.go", data.Collection)))
+			serviceTestsFile := path.Join(serviceDir, fmt.Sprintf("%s_test.go", data.Collection))
+			err = template.Write(templates_mongo.ServiceTestsTemplate, &data, serviceTestsFile)
 			util.HandleError(err, "Unable to create service tests.")
+			createdFiles = append(createdFiles, serviceTestsFile)
 
-			err = template.Write(templates_mongo.CreateServiceTemplate, &data, path.Join(serviceDir, "create.go"))
+			createServiceFile := path.Join(serviceDir, "create.go")
+			err = template.Write(templates_mongo.CreateServiceTemplate, &data, createServiceFile)
 			util.HandleError(err, "Unable to create create service.")
-			err = template.Write(templates_mongo.CreateServiceTestTemplate, &data, path.Join(serviceDir, "create_test.go"))
+			createdFiles = append(createdFiles, createServiceFile)
+			createServiceTestFile := path.Join(serviceDir, "create_test.go")
+			err = template.Write(templates_mongo.CreateServiceTestTemplate, &data, createServiceTestFile)
 			util.HandleError(err, "Unable to create create service tests.")
+			createdFiles = append(createdFiles, createServiceTestFile)
 
-			err = template.Write(templates_mongo.UpdateServiceTemplate, &data, path.Join(serviceDir, "update.go"))
+			updateServiceFile := path.Join(serviceDir, "update.go")
+			err = template.Write(templates_mongo.UpdateServiceTemplate, &data, updateServiceFile)
 			util.HandleError(err, "Unable to create update service.")
-			err = template.Write(templates_mongo.UpdateServiceTestTemplate, &data, path.Join(serviceDir, "update_test.go"))
+			createdFiles = append(createdFiles, updateServiceFile)
+			updateServiceTestFile := path.Join(serviceDir, "update_test.go")
+			err = template.Write(templates_mongo.UpdateServiceTestTemplate, &data, updateServiceTestFile)
 			util.HandleError(err, "Unable to create update service tests.")
+			createdFiles = append(createdFiles, updateServiceTestFile)
 
-			err = template.Write(templates_mongo.DeleteServiceTemplate, &data, path.Join(serviceDir, "delete.go"))
+			deleteServiceFile := path.Join(serviceDir, "delete.go")
+			err = template.Write(templates_mongo.DeleteServiceTemplate, &data, deleteServiceFile)
 			util.HandleError(err, "Unable to create delete service.")
-			err = template.Write(templates_mongo.DeleteServiceTestTemplate, &data, path.Join(serviceDir, "delete_test.go"))
+			createdFiles = append(createdFiles, deleteServiceFile)
+			deleteServiceTestFile := path.Join(serviceDir, "delete_test.go")
+			err = template.Write(templates_mongo.DeleteServiceTestTemplate, &data, deleteServiceTestFile)
 			util.HandleError(err, "Unable to create delete service tests.")
+			createdFiles = append(createdFiles, deleteServiceTestFile)
 
-			err = template.Write(templates_mongo.ListServiceTemplate, &data, path.Join(serviceDir, "list.go"))
+			listServiceFile := path.Join(serviceDir, "list.go")
+			err = template.Write(templates_mongo.ListServiceTemplate, &data, listServiceFile)
 			util.HandleError(err, "Unable to create list service.")
-			err = template.Write(templates_mongo.ListServiceTestTemplate, &data, path.Join(serviceDir, "list_test.go"))
+			createdFiles = append(createdFiles, listServiceFile)
+			listServiceTestFile := path.Join(serviceDir, "list_test.go")
+			err = template.Write(templates_mongo.ListServiceTestTemplate, &data, listServiceTestFile)
 			util.HandleError(err, "Unable to create list service tests.")
+			createdFiles = append(createdFiles, listServiceTestFile)
 
-			err = template.Write(templates_mongo.FindServiceTemplate, &data, path.Join(serviceDir, "find.go"))
+			findServiceFile := path.Join(serviceDir, "find.go")
+			err = template.Write(templates_mongo.FindServiceTemplate, &data, findServiceFile)
 			util.HandleError(err, "Unable to create find service.")
-			err = template.Write(templates_mongo.FindServiceTestTemplate, &data, path.Join(serviceDir, "find_test.go"))
+			createdFiles = append(createdFiles, findServiceFile)
+			findServiceTestFile := path.Join(serviceDir, "find_test.go")
+			err = template.Write(templates_mongo.FindServiceTestTemplate, &data, findServiceTestFile)
 			util.HandleError(err, "Unable to create find service tests.")
+			createdFiles = append(createdFiles, findServiceTestFile)
 		}
-
-		fmt.Printf("%s was created.\n", modelFile)
 	}
 }
