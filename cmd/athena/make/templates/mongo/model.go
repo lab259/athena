@@ -34,7 +34,7 @@ type {{.Model}} struct {
 func New{{.Model}}Repository(ctx context.Context) *repository.Repository {
 	return repository.NewRepository(repository.RepositoryConfig{
 		Collection:  "{{.Collection}}",
-  		QueryRunner: &mgorscsrv.DefaultMgoService,
+  		QueryRunner: mgorscsrv.DefaultMgoService,
 	})
 }
 {{end}}

@@ -82,7 +82,7 @@ var _ = Describe("Services", func() {
 		Describe("Update", func() {
 
 			BeforeEach(func() {
-				rscsrvtest.Start(&psqlrscsrv.DefaultPsqlService)
+				rscsrvtest.Start(psqlrscsrv.DefaultPsqlService)
 			})
 
 			AfterEach(func() {

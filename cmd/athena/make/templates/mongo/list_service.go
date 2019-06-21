@@ -69,7 +69,7 @@ var _ = Describe("Services", func() {
 		Describe("List", func() {
 			
 			BeforeEach(func() {
-				rscsrvtest.Start(&mgorscsrv.DefaultMgoService)
+				rscsrvtest.Start(mgorscsrv.DefaultMgoService)
 				mgotest.ClearDefaultMgoService("")
 			})
 
