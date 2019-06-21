@@ -7,17 +7,29 @@ var (
 	maxPageSize     = 100
 )
 
+type Pagination struct {
+	CurrentPage int
+	PageSize    int
+	Offset      int
+	Limit       int
+}
+
 // Parse adjust pageSize and currentPage to respect default page size
 // and max page size. Keep in mind that the first page is `1`, therefore non-positive
 // numbers will always return `1`.
-func Parse(pageSizeRaw, currentPageRaw int) (pageSize int, currentPage int) {
-	pageSize = int(math.Min(float64(pageSizeRaw), float64(maxPageSize)))
+func Parse(pageSizeRaw, currentPageRaw int) *Pagination {
+	pageSize := int(math.Min(float64(pageSizeRaw), float64(maxPageSize)))
 	if pageSize <= 0 {
 		pageSize = defaultPageSize
 	}
 
-	currentPage = int(math.Max(1, float64(currentPageRaw)))
-	return
+	currentPage := int(math.Max(1, float64(currentPageRaw)))
+	return &Pagination{
+		PageSize:    pageSize,
+		Limit:       pageSize,
+		CurrentPage: currentPage,
+		Offset:      (currentPage - 1) * pageSize,
+	}
 }
 
 // Option represents functions that can be used to customize
