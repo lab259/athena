@@ -11,17 +11,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:23d749caca2b2caab37e904a064c317fb4ddc86063fff93715acf6ce9beddb9c"
-  name = "github.com/felipemfp/faker"
-  packages = [
-    ".",
-    "support/slice",
-  ]
-  pruneopts = "UT"
-  revision = "7b1b38a836077add3eef50676fbf66c3f097fca9"
-
-[[projects]]
-  branch = "master"
   digest = "1:78102ee4d536347316bc42e818340cc50902e45dbd7fdd524c5a1fc0cb07b588"
   name = "github.com/globalsign/mgo"
   packages = [
@@ -52,14 +41,6 @@
   pruneopts = "UT"
   revision = "b32fa301c9fe55953584134cb6853a13c87ec0a1"
   version = "v0.16.0"
-
-[[projects]]
-  digest = "1:bed9d72d596f94e65fff37f4d6c01398074a6bb1c3f3ceff963516bd01db6ff5"
-  name = "github.com/gofrs/uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "6b08a5c5172ba18946672b49749cde22873dd7c2"
-  version = "v3.2.0"
 
 [[projects]]
   digest = "1:e46ef3b65e25f610b7151015e2b782af1aad6f8bb8ac2edb5bb90c1b94e92524"
@@ -145,14 +126,6 @@
   version = "v1.2.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:4534c84fa7e3752325d4f8657fe39c6e0188b8336d8a340c5cec840bc9ca1f13"
-  name = "github.com/lab259/errors"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "18f05663b7524a6b64db1056e2c44475775c1298"
-
-[[projects]]
   digest = "1:b7a7153f385c5abb03409c8f350c874ad913fa73dfdabc012c88b4e2b582427c"
   name = "github.com/lab259/go-rscsrv"
   packages = ["."]
@@ -169,28 +142,20 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:9a8abddb4a0bc28e7a7c42c04a6b9e39b8ce9bafd883e2af8cbfe320bea1002a"
+  name = "github.com/lab259/go-rscsrv-psql"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "728142b0a520b950d5b2ca2ea192c36c352aae33"
+  version = "v0.1.0"
+
+[[projects]]
   digest = "1:40113857a4df0e35b4609b82bf0d660e98c0b8c0fdccc99dfd57028f0a5aab81"
   name = "github.com/lab259/http"
   packages = ["."]
   pruneopts = "UT"
   revision = "11fe5e82d42c2b31f9f93b793ad4aa5b01a3b268"
   version = "v0.0.2"
-
-[[projects]]
-  digest = "1:9fdcc43c8e046be38794d0056eb5048654e201ece112cf61d13aafdfddc6dd95"
-  name = "github.com/lab259/mgohelpers"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "a0bb81af6f6e423430f31f8e9f89a131f03297f4"
-  version = "v0.2.0"
-
-[[projects]]
-  digest = "1:9cb13f8339ecff516be123441d2b702d2448568a5850652e42fe3b69ef158cad"
-  name = "github.com/lab259/repository"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "043b8035478015b2fe5319782db4203994fa9ad9"
-  version = "v0.4.0"
 
 [[projects]]
   digest = "1:b625eb1694124e10a585355e4605f35b2cef495841c1015ecbee7019fa2b0e35"
@@ -207,6 +172,18 @@
   pruneopts = "UT"
   revision = "70078a794e8ea4b497ba7c19a78cd60f90ccf0f4"
   version = "v1.1.0"
+
+[[projects]]
+  digest = "1:bdd53b87de8185da386bae179c84d4848854c6870bacacf6a154fe63e2e750f7"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+    "scram",
+  ]
+  pruneopts = "UT"
+  revision = "bc6a3c0594130b1e34005880bc600b6d3f49fa7f"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
@@ -396,19 +373,15 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/felipemfp/faker",
     "github.com/globalsign/mgo",
-    "github.com/gofrs/uuid",
     "github.com/gosimple/slug",
     "github.com/iancoleman/strcase",
     "github.com/jamillosantos/macchiato",
     "github.com/jawher/mow.cli",
     "github.com/jinzhu/inflection",
-    "github.com/lab259/errors",
     "github.com/lab259/go-rscsrv",
     "github.com/lab259/go-rscsrv-mgo",
-    "github.com/lab259/mgohelpers",
-    "github.com/lab259/repository",
+    "github.com/lab259/go-rscsrv-psql",
     "github.com/lab259/rlog",
     "github.com/onsi/ginkgo",
     "github.com/onsi/ginkgo/reporters",
