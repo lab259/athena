@@ -210,6 +210,20 @@
   version = "v1.1.1"
 
 [[projects]]
+  digest = "1:15022cc6a0a3ac52b319b0b2230a7017747adbf072df0c8f555e9c1f286bf257"
+  name = "github.com/mattes/migrate"
+  packages = [
+    ".",
+    "database",
+    "database/postgres",
+    "source",
+    "source/file",
+  ]
+  pruneopts = "UT"
+  revision = "035c07716cd373d88456ec4d701402df52584cb4"
+  version = "v3.0.1"
+
+[[projects]]
   digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
   name = "github.com/mattn/go-colorable"
   packages = ["."]
@@ -377,6 +391,27 @@
   version = "v0.3.2"
 
 [[projects]]
+  branch = "master"
+  digest = "1:76c873c4cb93459b6af4732946d6b9786c16426031fb390e8c52680e3f4d1ca6"
+  name = "golang.org/x/tools"
+  packages = [
+    "go/ast/astutil",
+    "go/gcexportdata",
+    "go/internal/gcimporter",
+    "go/internal/packagesdriver",
+    "go/packages",
+    "go/types/typeutil",
+    "imports",
+    "internal/fastwalk",
+    "internal/gopathwalk",
+    "internal/imports",
+    "internal/module",
+    "internal/semver",
+  ]
+  pruneopts = "UT"
+  revision = "1fa568393b23e69144eafde9840835928bb33567"
+
+[[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "gopkg.in/fsnotify.v1"
   packages = ["."]
@@ -394,15 +429,26 @@
   version = "v9.29.0"
 
 [[projects]]
-  digest = "1:2ae66c4d95d3d40a012ebd9fcc384c90fbd383f8ae5fe8c98c505611e7052063"
+  digest = "1:6ecb7b1aed76f0c9afbccd4c0420a3f4aca95b475f1b517cf1771202d31016d1"
   name = "gopkg.in/src-d/go-kallax.v1"
   packages = [
     ".",
+    "generator",
+    "generator/cli/kallax",
+    "generator/cli/kallax/cmd",
     "types",
   ]
   pruneopts = "UT"
   revision = "54324d6a2cb11186536d8f30e409742fa0c26272"
   version = "v1.3.5"
+
+[[projects]]
+  digest = "1:a4355b25ac92b8af85253cdc2ddb87e017d3a07e5c3041b3409e7c88658d5d9c"
+  name = "gopkg.in/src-d/go-parse-utils.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9683a7e3ea92c53242795b2c51900c1220087788"
+  version = "v1.1.2"
 
 [[projects]]
   branch = "v1"
@@ -411,6 +457,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "dd632973f1e7218eb1089048e0798ec9ae7dceb8"
+
+[[projects]]
+  digest = "1:b24d38b282bacf9791408a080f606370efa3d364e4b5fd9ba0f7b87786d3b679"
+  name = "gopkg.in/urfave/cli.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+  version = "v1.20.0"
 
 [[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
@@ -440,6 +494,8 @@
     "github.com/valyala/fasthttp",
     "gopkg.in/go-playground/validator.v9",
     "gopkg.in/src-d/go-kallax.v1",
+    "gopkg.in/src-d/go-kallax.v1/generator/cli/kallax",
+    "gopkg.in/src-d/go-kallax.v1/types",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

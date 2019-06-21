@@ -1,6 +1,6 @@
 package templates
 
-import "github.com/lab259/athena/athena/util/template"
+import "github.com/lab259/athena/cmd/athena/util/template"
 
 type ServiceTemplateData struct {
 	Project string

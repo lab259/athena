@@ -1,6 +1,6 @@
 package templates_psql
 
-import "github.com/lab259/athena/athena/util/template"
+import "github.com/lab259/athena/cmd/athena/util/template"
 
 var ListServiceTemplate = template.New("list_service.go", `package {{.Collection}}
 

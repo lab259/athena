@@ -1,7 +1,7 @@
-package templates_psql
+package templates_mongo
 
 import (
-	"github.com/lab259/athena/athena/util/template"
+	"github.com/lab259/athena/cmd/athena/util/template"
 )
 
 var ServiceTestsTemplate = template.New("package_test.go", `package {{.Collection}}_test
