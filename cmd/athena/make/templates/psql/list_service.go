@@ -74,6 +74,7 @@ import (
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/athena/services/accounts"
 	"github.com/lab259/athena/testing/rscsrvtest"
+	"github.com/lab259/athena/testing/psqltest"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/src-d/go-kallax.v1"
@@ -83,13 +84,11 @@ var _ = Describe("Services", func() {
 	Describe("{{toCamel .Table}}", func() {
 		Describe("List", func() {
 			
+
 			BeforeEach(func() {
-				rscsrvtest.Start(psqlrscsrv.DefaultPsqlService)
+				rscsrvtest.Start(psqltest.NewPsqlTestService())
 			})
 
-			AfterEach(func() {
-				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
-			})
 
 			It("should list (empty)", func() {
 				ctx := context.Background()

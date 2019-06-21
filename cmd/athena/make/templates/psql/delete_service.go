@@ -7,6 +7,7 @@ var DeleteServiceTemplate = template.New("delete_service.go", `package {{.Table}
 import (
 	"context"
 
+	"github.com/lab259/athena/validator"
 	"github.com/lab259/{{.Project}}/models"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/errors"
@@ -14,7 +15,7 @@ import (
 
 // DeleteInput holds input information for Delete service
 type DeleteInput struct {
-	{{.Model}} *models.{{.Model}}
+	{{.Model}} *models.{{.Model}} `+"`"+`validate:"required"`+"`"+`
 }
 
 // DeleteOutput holds the output information from Delete service
@@ -24,6 +25,11 @@ type DeleteOutput struct {
 
 // Delete deletes a {{.Model}}
 func Delete(ctx context.Context, input *DeleteInput) (*DeleteOutput, error) {
+	err := validator.Validate(input)
+	if err != nil {
+		return nil, errors.Wrap(err, errors.Validation(), errors.Module("{{.Table}}_service"))
+	}
+
 	db, err := psqlrscsrv.DefaultPsqlService.DB()
 	if err != nil {
 		return nil, errors.Wrap(err, errors.Code("db-available"), errors.Module("{{.Table}}_service"))
@@ -50,6 +56,7 @@ import (
 	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/athena/testing/rscsrvtest"
+	"github.com/lab259/athena/testing/psqltest"
 	"github.com/felipemfp/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -60,14 +67,11 @@ import (
 var _ = Describe("Services", func() {
 	Describe("{{toCamel .Table}}", func() {
 		Describe("Delete", func() {
-			
+
 			BeforeEach(func() {
-				rscsrvtest.Start(psqlrscsrv.DefaultPsqlService)
+				rscsrvtest.Start(psqltest.NewPsqlTestService())
 			})
 
-			AfterEach(func() {
-				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
-			})
 
 			It("should delete", func() {
 				ctx := context.Background()
@@ -99,12 +103,12 @@ var _ = Describe("Services", func() {
 
 				input := {{.Table}}.DeleteInput{}
 				input.{{.Model}} = models.New{{.Model}}()
-				input.{{.Model}}.ID = kallax.NewULID()
+				Expect(faker.FakeData(&input.{{.Model}})).To(Succeed())
 
 				output, err := {{.Table}}.Delete(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
-				Expect(errors.Reason(err)).To(Equal(kallax.ErrNotFound))
+				Expect(errors.Reason(err)).To(Equal(kallax.ErrEmptyID))
 			})
 		})
 	})

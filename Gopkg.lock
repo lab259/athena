@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:317699e5a6ffb21d6d26d125f686b906f9552db1f8e280d1dc492a358cda1d1a"
+  name = "github.com/DATA-DOG/go-txdb"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "98b2c9b21b660ca7c8a1ceb4deed9fd5a14e5cd8"
+  version = "v0.1.2"
+
+[[projects]]
   digest = "1:14a90eb1290bd0aa42848afa9ee2c9ce247abdb63c2cf614331670119760962f"
   name = "github.com/Masterminds/squirrel"
   packages = ["."]
@@ -16,6 +24,17 @@
   pruneopts = "UT"
   revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
   version = "v1.7.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:23d749caca2b2caab37e904a064c317fb4ddc86063fff93715acf6ce9beddb9c"
+  name = "github.com/felipemfp/faker"
+  packages = [
+    ".",
+    "support/slice",
+  ]
+  pruneopts = "UT"
+  revision = "7b1b38a836077add3eef50676fbf66c3f097fca9"
 
 [[projects]]
   branch = "master"
@@ -132,6 +151,14 @@
   pruneopts = "UT"
   revision = "05a8198c0f5a27739aec358908d7e12c64ce6eb7"
   version = "v1.2.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:4534c84fa7e3752325d4f8657fe39c6e0188b8336d8a340c5cec840bc9ca1f13"
+  name = "github.com/lab259/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "18f05663b7524a6b64db1056e2c44475775c1298"
 
 [[projects]]
   digest = "1:b7a7153f385c5abb03409c8f350c874ad913fa73dfdabc012c88b4e2b582427c"
@@ -478,16 +505,20 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/DATA-DOG/go-txdb",
+    "github.com/felipemfp/faker",
     "github.com/globalsign/mgo",
     "github.com/gosimple/slug",
     "github.com/iancoleman/strcase",
     "github.com/jamillosantos/macchiato",
     "github.com/jawher/mow.cli",
     "github.com/jinzhu/inflection",
+    "github.com/lab259/errors",
     "github.com/lab259/go-rscsrv",
     "github.com/lab259/go-rscsrv-mgo",
     "github.com/lab259/go-rscsrv-psql",
     "github.com/lab259/rlog",
+    "github.com/lib/pq",
     "github.com/onsi/ginkgo",
     "github.com/onsi/ginkgo/reporters",
     "github.com/onsi/gomega",
