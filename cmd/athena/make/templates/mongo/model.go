@@ -1,6 +1,6 @@
 package templates_mongo
 
-import "github.com/lab259/athena/athena/util/template"
+import "github.com/lab259/athena/cmd/athena/util/template"
 
 type ModelTemplateData struct {
 	Project        string

@@ -1,8 +1,8 @@
-package templates_psql
+package templates_mongo
 
-import "github.com/lab259/athena/athena/util/template"
+import "github.com/lab259/athena/cmd/athena/util/template"
 
-var FindServiceTemplate = template.New("find_service.go", `package {{.Collection}}
+var DeleteServiceTemplate = template.New("delete_service.go", `package {{.Collection}}
 
 import (
 	"context"
@@ -13,33 +13,32 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// FindInput holds input information for Find service
-type FindInput struct {
+// DeleteInput holds input information for Delete service
+type DeleteInput struct {
 	{{.Model}}ID uuid.UUID
 }
 
-// FindOutput holds the output information from Find service
-type FindOutput struct {
-	{{.Model}} *models.{{.Model}}
+// DeleteOutput holds the output information from Delete service
+type DeleteOutput struct {
+	Count int
 }
 
-// Find returns a {{.Model}}
-func Find(ctx context.Context, input *FindInput) (*FindOutput, error) {
+// Delete deletes a {{.Model}}
+func Delete(ctx context.Context, input *DeleteInput) (*DeleteOutput, error) {
 	repo := models.New{{.Model}}Repository(ctx)
-	var obj models.{{.Model}}
 
-	err := repo.Find(&obj, repository.ByID(input.{{.Model}}ID))
+	err := repo.Delete(repository.ByID(input.{{.Model}}ID))
 	if err != nil {
-		return nil, errors.Wrap(err,errors.Code("repository-find-failed"), errors.Module("users_service"))
+		return nil, errors.Wrap(err,errors.Code("repository-delete-failed"), errors.Module("users_service"))
 	}
 
-	return &FindOutput{
-		{{.Model}}: &obj,
+	return &DeleteOutput{
+		Count: 1,
 	}, nil
 }
 `)
 
-var FindServiceTestTemplate = template.New("find_test.go", `package {{.Collection}}_test
+var DeleteServiceTestTemplate = template.New("delete_test.go", `package {{.Collection}}_test
 
 import (
 	"context"
@@ -59,14 +58,14 @@ import (
 
 var _ = Describe("Services", func() {
 	Describe("{{toCamel .Collection}}", func() {
-		Describe("Find", func() {
+		Describe("Delete", func() {
 			
 			BeforeEach(func() {
 				rscsrvtest.Start(&mgorscsrv.DefaultMgoService)
 				mgotest.ClearDefaultMgoService("")
 			})
 
-			It("should find", func() {
+			It("should delete", func() {
 				ctx := context.Background()
 				repo := models.New{{.Model}}Repository(ctx)
 
@@ -75,24 +74,26 @@ var _ = Describe("Services", func() {
 				existing.ID = uuid.Must(uuid.NewV4())
 				repo.Create(&existing)
 
-				input := {{.Collection}}.FindInput{}
+				input := {{.Collection}}.DeleteInput{}
 				input.{{.Model}}ID = existing.ID
 
-				output, err := {{.Collection}}.Find(ctx, &input)
+				output, err := {{.Collection}}.Delete(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(output.Count).To(Equal(1))
 
-				Expect(output.{{$.Model}}.ID).To(Equal(existing.ID))
-				{{range .Fields}}Expect(output.{{$.Model}}.{{formatFieldName .}}).To(Equal(existing.{{formatFieldName .}}))
-				{{end}}
+				var obj models.{{.Model}}
+				err = repo.FindByID(existing.ID, &obj)
+				Expect(err).To(HaveOccurred())
+				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))
 			})
 
 			It("should fail with not found", func() {
 				ctx := context.Background()
 
-				input := {{.Collection}}.FindInput{}
+				input := {{.Collection}}.DeleteInput{}
 				input.{{.Model}}ID = uuid.Must(uuid.NewV4())
 
-				output, err := {{.Collection}}.Find(ctx, &input)
+				output, err := {{.Collection}}.Delete(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
 				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))

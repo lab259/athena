@@ -9,9 +9,9 @@ import (
 
 	"github.com/iancoleman/strcase"
 	cli "github.com/jawher/mow.cli"
-	"github.com/lab259/athena/athena/make/templates"
-	"github.com/lab259/athena/athena/util"
-	"github.com/lab259/athena/athena/util/template"
+	"github.com/lab259/athena/cmd/athena/make/templates"
+	"github.com/lab259/athena/cmd/athena/util"
+	"github.com/lab259/athena/cmd/athena/util/template"
 	"github.com/lab259/athena/config"
 )
 

@@ -1,17 +1,19 @@
-GOPATH=$(CURDIR)/../../../../
+GOPATH=$(shell readlink -f $(CURDIR)/../../../../)
 GOPATHCMD=PROJECT_ROOT=$(CURDIR) GOPATH=$(GOPATH)
+GOCMD=$(GOPATHCMD) go
 
 COVERDIR=$(CURDIR)/.cover
 COVERAGEFILE=$(COVERDIR)/cover.out
 
-EXAMPLES=$(shell ls ./examples/)
+CMDS=$(shell test -d ./cmd/ && ls ./cmd/)
+EXAMPLES=$(shell test -d ./examples/ && ls ./examples/)
 
 VERSION := `git describe --exact-match --tags 2> /dev/null || git rev-parse HEAD`
 LDFLAGS=-X=main.version=$(VERSION)
 
 build:
-	@$(GOPATHCMD) go build "-ldflags=$(LDFLAGS) -s -w" -o ./bin/athena -v ./athena
-	@test -d ./examples && $(foreach example,$(EXAMPLES),$(GOPATHCMD) go build "-ldflags=$(LDFLAGS)" -o ./bin/$(example) -v ./examples/$(example) &&) :
+	@$(foreach cmd,$(CMDS),$(GOCMD) build "-ldflags=$(LDFLAGS) -s -w" -o ./bin/$(cmd) -v ./cmd/$(cmd) &&) :
+	@$(foreach example,$(EXAMPLES),$(GOCMD) build "-ldflags=$(LDFLAGS) -s -w" -o ./bin/$(example) -v ./examples/$(example) &&) :
 
 test:
 	@${GOPATHCMD} ginkgo --failFast ./...
@@ -30,7 +32,7 @@ coverage: coverage-ci
 	@cp "${COVERAGEFILE}" coverage.txt
 
 coverage-html:
-	@$(GOPATHCMD) go tool cover -html="${COVERAGEFILE}" -o .cover/report.html
+	@$(GOCMD) tool cover -html="${COVERAGEFILE}" -o .cover/report.html
 	@xdg-open .cover/report.html 2> /dev/null > /dev/null
 
 dep-ensure:
@@ -40,9 +42,15 @@ dep-update:
 	@$(GOPATHCMD) dep ensure -update -v $(PACKAGE)
 
 vet:
-	@$(GOPATHCMD) go vet ./...
+	@$(GOCMD) vet ./...
 
 fmt:
-	@$(GOPATHCMD) gofmt -e -s -d *.go
+	@$(GOCMD) fmt ./...
 
-.PHONY: deps deps-ci coverage coverage-ci test test-watch coverage coverage-html
+get:
+	@$(GOCMD) get -u $(PACKAGE)
+
+generate:
+	@$(GOCMD) generate ./...
+
+.PHONY: build test test-watch coverage coverage-ci coverage-html dep-ensure dep-update vet fmt get generate

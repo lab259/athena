@@ -4,7 +4,7 @@ import (
 	"os"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/lab259/athena/athena/make"
+	"github.com/lab259/athena/cmd/athena/make"
 )
 
 var (
