@@ -7,18 +7,19 @@ var UpdateServiceTemplate = template.New("update_service.go", `package {{.Table}
 import (
 	"context"
 
+	"gopkg.in/src-d/go-kallax.v1"
 	"github.com/lab259/athena/validator"
 	"github.com/lab259/{{.Project}}/models"
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/errors"
-	"github.com/lab259/mgohelpers"
-	"github.com/gofrs/uuid"
 )
 
 // UpdateInput holds input information for Update service
 type UpdateInput struct {
-	{{.Model}}ID uuid.UUID
-	{{range .Fields}}{{formatFieldOptional .}}  `+"`"+`json:"{{formatFieldTag .}}" {{if hasValidation .}}validate:"omitempty,{{formatValidation .}}"{{end}}`+"`"+`
-	{{end}}
+	{{.Model}} *models.{{.Model}}
+	{{- range .Fields}}
+	{{formatFieldOptional .}}  `+"`"+`json:"{{formatFieldTag .}}" {{if hasValidation .}}validate:"omitempty,{{formatValidation .}}"{{end}}`+"`"+`
+	{{- end}}
 }
 
 // UpdateOutput holds the output information from Update service
@@ -28,25 +29,34 @@ type UpdateOutput struct {
 
 // Update partial updates a {{.Model}} and returns it
 func Update(ctx context.Context, input *UpdateInput) (*UpdateOutput, error) {
-	var obj models.{{.Model}}
-	repo := models.New{{.Model}}Repository(ctx)
-	
 	err := validator.Validate(input)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.Validation(), errors.Module("users_service"))
+		return nil, errors.Wrap(err, errors.Validation(), errors.Module("{{.Table}}_service"))
 	}
 
-	updateSet := make(mgohelpers.UpdateSet, {{len .Fields}})
-	{{range .Fields}}updateSet.Add(&obj, &obj.{{formatFieldName .}}, input.{{formatFieldName .}})
+	db, err := psqlrscsrv.DefaultPsqlService.DB()
+	if err != nil {
+		return nil, errors.Wrap(err, errors.Code("db-available"), errors.Module("{{.Table}}_service"))
+	}
+
+	store := models.New{{.Model}}Store(db)
+	obj  := input.{{.Model}}
+	cols := make([]kallax.SchemaField, 0, {{len .Fields}})
+
+	{{range .Fields}}
+	if input.{{formatFieldName .}} != nil {
+		obj.{{formatFieldName .}} = *input.{{formatFieldName .}}
+		cols = append(cols, models.Schema.{{$.Model}}.{{formatFieldName .}})
+	}
 	{{end}}
 
-	err = repo.UpdateAndFind(input.{{.Model}}ID, &obj, updateSet)
+	_, err = store.Update(obj, cols...)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.Code("repository-update-failed"), errors.Module("users_service"))
+		return nil, errors.Wrap(err, errors.Code("update-failed"), errors.Module("{{.Table}}_service"))
 	}
 
 	return &UpdateOutput{
-		{{.Model}}: &obj,
+		{{.Model}}: obj,
 	}, nil
 }
 `)
@@ -58,51 +68,58 @@ import (
 
 	"github.com/lab259/{{.Project}}/models"
 	"github.com/lab259/{{.Project}}/services/{{.Table}}"
-	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/athena/testing/rscsrvtest"
-	"github.com/lab259/athena/testing/mgotest"
-	"github.com/gofrs/uuid"
-	"github.com/globalsign/mgo"
-	"github.com/lab259/errors"
 	"github.com/felipemfp/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gopkg.in/src-d/go-kallax.v1"
+	"github.com/lab259/errors"
 )
 
 var _ = Describe("Services", func() {
 	Describe("{{toCamel .Table}}", func() {
 		Describe("Update", func() {
-			
+
 			BeforeEach(func() {
-				rscsrvtest.Start(&mgorscsrv.DefaultMgoService)
-				mgotest.ClearDefaultMgoService("")
+				rscsrvtest.Start(&psqlrscsrv.DefaultPsqlService)
+			})
+
+			AfterEach(func() {
+				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
 			})
 
 			It("should update", func() {
 				ctx := context.Background()
-				repo := models.New{{.Model}}Repository(ctx)
 
-				existing := models.{{.Model}}{}
+				db, err := psqlrscsrv.DefaultPsqlService.DB()
+				Expect(err).ToNot(HaveOccurred())
+
+				store := models.New{{.Model}}Store(db)
+
+				existing := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing)).To(Succeed())
-				existing.ID = uuid.Must(uuid.NewV4())
-				repo.Create(&existing)
+				existing.ID = kallax.NewULID()
+				Expect(store.Insert(existing)).To(Succeed())
 
 				input := {{.Table}}.UpdateInput{}
 				Expect(faker.FakeData(&input)).To(Succeed())
-				input.{{.Model}}ID = existing.ID
+				input.{{.Model}} = existing
 
 				output, err := {{.Table}}.Update(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(output.{{$.Model}}.ID).To(Equal(existing.ID))
-				{{range .Fields}}Expect(output.{{$.Model}}.{{formatFieldName .}}).To(Equal(*input.{{formatFieldName .}}))
-				{{end}}
+				{{- range .Fields}}
+				Expect(output.{{$.Model}}.{{formatFieldName .}}).To(Equal(*input.{{formatFieldName .}}))
+				{{- end}}
 
-				var obj models.{{.Model}}
-				Expect(repo.FindByID(output.{{.Model}}.ID, &obj)).To(Succeed())
+				obj, err := store.FindOne(models.New{{.Model}}Query().FindByID(output.{{.Model}}.ID))
+				Expect(err).ToNot(HaveOccurred())
 
-				{{range .Fields}}Expect(obj.{{formatFieldName .}}).To(Equal(*input.{{formatFieldName .}}))
-				{{end}}
+				{{- range .Fields}}
+				Expect(obj.{{formatFieldName .}}).To(Equal(*input.{{formatFieldName .}}))
+				{{- end}}
 			})
 
 			It("should fail with not found", func() {
@@ -110,12 +127,13 @@ var _ = Describe("Services", func() {
 
 				input := {{.Table}}.UpdateInput{}
 				Expect(faker.FakeData(&input)).To(Succeed())
-				input.{{.Model}}ID = uuid.Must(uuid.NewV4())
+				input.{{.Model}} = models.New{{.Model}}()
+				input.{{.Model}}.ID = kallax.NewULID()
 
 				output, err := {{.Table}}.Update(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
-				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))
+				Expect(errors.Reason(err)).To(Equal(kallax.ErrNoRowUpdate))
 			})
 		})
 	})

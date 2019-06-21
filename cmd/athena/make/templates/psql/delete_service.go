@@ -8,14 +8,13 @@ import (
 	"context"
 
 	"github.com/lab259/{{.Project}}/models"
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/errors"
-	"github.com/lab259/repository"
-	"github.com/gofrs/uuid"
 )
 
 // DeleteInput holds input information for Delete service
 type DeleteInput struct {
-	{{.Model}}ID uuid.UUID
+	{{.Model}} *models.{{.Model}}
 }
 
 // DeleteOutput holds the output information from Delete service
@@ -25,11 +24,15 @@ type DeleteOutput struct {
 
 // Delete deletes a {{.Model}}
 func Delete(ctx context.Context, input *DeleteInput) (*DeleteOutput, error) {
-	repo := models.New{{.Model}}Repository(ctx)
-
-	err := repo.Delete(repository.ByID(input.{{.Model}}ID))
+	db, err := psqlrscsrv.DefaultPsqlService.DB()
 	if err != nil {
-		return nil, errors.Wrap(err,errors.Code("repository-delete-failed"), errors.Module("users_service"))
+		return nil, errors.Wrap(err, errors.Code("db-available"), errors.Module("{{.Table}}_service"))
+	}
+
+	store := models.New{{.Model}}Store(db)
+	err = store.Delete(input.{{.Model}})
+	if err != nil {
+		return nil, errors.Wrap(err, errors.Code("delete-failed"), errors.Module("{{.Table}}_service"))
 	}
 
 	return &DeleteOutput{
@@ -45,15 +48,13 @@ import (
 
 	"github.com/lab259/{{.Project}}/models"
 	"github.com/lab259/{{.Project}}/services/{{.Table}}"
-	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/athena/testing/rscsrvtest"
-	"github.com/lab259/athena/testing/mgotest"
-	"github.com/gofrs/uuid"
-	"github.com/globalsign/mgo"
-	"github.com/lab259/errors"
 	"github.com/felipemfp/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gopkg.in/src-d/go-kallax.v1"
+	"github.com/lab259/errors"
 )
 
 var _ = Describe("Services", func() {
@@ -61,42 +62,49 @@ var _ = Describe("Services", func() {
 		Describe("Delete", func() {
 			
 			BeforeEach(func() {
-				rscsrvtest.Start(&mgorscsrv.DefaultMgoService)
-				mgotest.ClearDefaultMgoService("")
+				rscsrvtest.Start(&psqlrscsrv.DefaultPsqlService)
+			})
+
+			AfterEach(func() {
+				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
 			})
 
 			It("should delete", func() {
 				ctx := context.Background()
-				repo := models.New{{.Model}}Repository(ctx)
 
-				existing := models.{{.Model}}{}
+				db, err := psqlrscsrv.DefaultPsqlService.DB()
+				Expect(err).ToNot(HaveOccurred())
+
+				store := models.New{{.Model}}Store(db)
+
+				existing := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing)).To(Succeed())
-				existing.ID = uuid.Must(uuid.NewV4())
-				repo.Create(&existing)
+				existing.ID = kallax.NewULID()
+				Expect(store.Insert(existing)).To(Succeed())
 
 				input := {{.Table}}.DeleteInput{}
-				input.{{.Model}}ID = existing.ID
+				input.{{.Model}} = existing
 
 				output, err := {{.Table}}.Delete(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(output.Count).To(Equal(1))
 
-				var obj models.{{.Model}}
-				err = repo.FindByID(existing.ID, &obj)
+				_, err = store.FindOne(models.New{{.Model}}Query().FindByID(existing.ID))
 				Expect(err).To(HaveOccurred())
-				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))
+				Expect(errors.Reason(err)).To(Equal(kallax.ErrNotFound))
 			})
 
 			It("should fail with not found", func() {
 				ctx := context.Background()
 
 				input := {{.Table}}.DeleteInput{}
-				input.{{.Model}}ID = uuid.Must(uuid.NewV4())
+				input.{{.Model}} = models.New{{.Model}}()
+				input.{{.Model}}.ID = kallax.NewULID()
 
 				output, err := {{.Table}}.Delete(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
-				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))
+				Expect(errors.Reason(err)).To(Equal(kallax.ErrNotFound))
 			})
 		})
 	})

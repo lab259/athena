@@ -7,15 +7,15 @@ var FindServiceTemplate = template.New("find_service.go", `package {{.Table}}
 import (
 	"context"
 
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
+	"gopkg.in/src-d/go-kallax.v1"
 	"github.com/lab259/{{.Project}}/models"
 	"github.com/lab259/errors"
-	"github.com/lab259/repository"
-	"github.com/gofrs/uuid"
 )
 
 // FindInput holds input information for Find service
 type FindInput struct {
-	{{.Model}}ID uuid.UUID
+	{{.Model}}ID kallax.ULID
 }
 
 // FindOutput holds the output information from Find service
@@ -25,16 +25,19 @@ type FindOutput struct {
 
 // Find returns a {{.Model}}
 func Find(ctx context.Context, input *FindInput) (*FindOutput, error) {
-	repo := models.New{{.Model}}Repository(ctx)
-	var obj models.{{.Model}}
-
-	err := repo.Find(&obj, repository.ByID(input.{{.Model}}ID))
+	db, err := psqlrscsrv.DefaultPsqlService.DB()
 	if err != nil {
-		return nil, errors.Wrap(err,errors.Code("repository-find-failed"), errors.Module("users_service"))
+		return nil, err
+	}
+
+	store := models.New{{.Model}}Store(db)
+	obj, err := store.FindOne(models.New{{.Model}}Query().FindByID(input.{{.Model}}ID))
+	if err != nil {
+		return nil, errors.Wrap(err,errors.Code("find-failed"), errors.Module("{{.Table}}_service"))
 	}
 
 	return &FindOutput{
-		{{.Model}}: &obj,
+		{{.Model}}: obj,
 	}, nil
 }
 `)
@@ -46,15 +49,13 @@ import (
 
 	"github.com/lab259/{{.Project}}/models"
 	"github.com/lab259/{{.Project}}/services/{{.Table}}"
-	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/athena/testing/rscsrvtest"
-	"github.com/lab259/athena/testing/mgotest"
-	"github.com/gofrs/uuid"
-	"github.com/globalsign/mgo"
-	"github.com/lab259/errors"
 	"github.com/felipemfp/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gopkg.in/src-d/go-kallax.v1"
+	"github.com/lab259/errors"
 )
 
 var _ = Describe("Services", func() {
@@ -62,18 +63,25 @@ var _ = Describe("Services", func() {
 		Describe("Find", func() {
 			
 			BeforeEach(func() {
-				rscsrvtest.Start(&mgorscsrv.DefaultMgoService)
-				mgotest.ClearDefaultMgoService("")
+				rscsrvtest.Start(&psqlrscsrv.DefaultPsqlService)
+			})
+
+			AfterEach(func() {
+				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
 			})
 
 			It("should find", func() {
 				ctx := context.Background()
-				repo := models.New{{.Model}}Repository(ctx)
 
-				existing := models.{{.Model}}{}
+				db, err := psqlrscsrv.DefaultPsqlService.DB()
+				Expect(err).ToNot(HaveOccurred())
+
+				store := models.New{{.Model}}Store(db)
+
+				existing := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing)).To(Succeed())
-				existing.ID = uuid.Must(uuid.NewV4())
-				repo.Create(&existing)
+				existing.ID = kallax.NewULID()
+				Expect(store.Insert(existing)).To(Succeed())
 
 				input := {{.Table}}.FindInput{}
 				input.{{.Model}}ID = existing.ID
@@ -82,20 +90,21 @@ var _ = Describe("Services", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(output.{{$.Model}}.ID).To(Equal(existing.ID))
-				{{range .Fields}}Expect(output.{{$.Model}}.{{formatFieldName .}}).To(Equal(existing.{{formatFieldName .}}))
-				{{end}}
+				{{- range .Fields}}
+				Expect(output.{{$.Model}}.{{formatFieldName .}}).To(Equal(existing.{{formatFieldName .}}))
+				{{- end}}
 			})
 
 			It("should fail with not found", func() {
 				ctx := context.Background()
 
 				input := {{.Table}}.FindInput{}
-				input.{{.Model}}ID = uuid.Must(uuid.NewV4())
+				input.{{.Model}}ID = kallax.NewULID()
 
 				output, err := {{.Table}}.Find(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
-				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))
+				Expect(errors.Reason(err)).To(Equal(kallax.ErrNotFound))
 			})
 		})
 	})

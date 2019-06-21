@@ -16,7 +16,7 @@ import (
 
 // UpdateInput holds input information for Update service
 type UpdateInput struct {
-	{{.Model}}ID uuid.UUID
+	{{.Model}}ID uuid.UUID `+"`"+`validate:"required"`+"`"+`
 	{{range .Fields}}{{formatFieldOptional .}}  `+"`"+`json:"{{formatFieldTag .}}" {{if hasValidation .}}validate:"omitempty,{{formatValidation .}}"{{end}}`+"`"+`
 	{{end}}
 }
