@@ -7,7 +7,6 @@ var CreateServiceTemplate = template.New("create_service.go", `package {{.Table}
 import (
 	"context"
 
-
 	"github.com/lab259/athena/validator"
 	"github.com/lab259/{{.Project}}/models"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
@@ -59,14 +58,10 @@ func Create(ctx context.Context, input *CreateInput) (*CreateOutput, error) {
 var CreateServiceTestTemplate = template.New("create_test.go", `package {{.Table}}_test
 
 import (
-	"context"
-
 	"github.com/lab259/{{.Project}}/models"
 	"github.com/lab259/{{.Project}}/services/{{.Table}}"
-	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/athena/testing/rscsrvtest"
-	"github.com/lab259/athena/testing/mgotest"
-	"github.com/gofrs/uuid"
 	"github.com/felipemfp/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -77,29 +72,31 @@ var _ = Describe("Services", func() {
 		Describe("Create", func() {
 
 			BeforeEach(func() {
-				rscsrvtest.Start(&mgorscsrv.DefaultMgoService)
+				rscsrvtest.Start(&psqlrscsrv.DefaultPsqlService)
 			})
 			
 			It("should create", func() {
-				ctx := context.Background()
-				repo := models.New{{.Model}}Repository(ctx)
-				
+				db, err := psqlrscsrv.DefaultPsqlService.DB()
+				Expect(err).ToNot(HaveOccurred())
+
 				input := {{.Table}}.CreateInput{}
 				Expect(faker.FakeData(&input)).To(Succeed())
 
 				output, err := {{.Table}}.Create(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 
-				Expect(output.{{$.Model}}.ID).ToNot(Equal(uuid.Nil))
-				{{range .Fields}}Expect(output.{{$.Model}}.{{formatFieldName .}}).To(Equal(input.{{formatFieldName .}}))
-				{{end}}
+				Expect(output.{{$.Model}}.ID.IsEmpty()).To(BeFalse())
+				{{- range .Fields}}
+				Expect(output.{{$.Model}}.{{formatFieldName .}}).To(Equal(input.{{formatFieldName .}}))
+				{{- end}}
 
-				var obj models.{{.Model}}
-				
-				Expect(repo.FindByID(output.{{.Model}}.ID, &obj)).To(Succeed())
+				store := models.New{{.Model}}Store(db)
+				obj, err := store.FindOne(models.New{{.Model}}Query().FindByID(output.{{.Model}}.ID))
+				Expect(err).ToNot(HaveOccurred())
 
-				{{range .Fields}}Expect(obj.{{formatFieldName .}}).To(Equal(input.{{formatFieldName .}}))
-				{{end}}
+				{{- range .Fields}}
+				Expect(obj.{{formatFieldName .}}).To(Equal(input.{{formatFieldName .}}))
+				{{- end}}
 			})
 		})
 	})

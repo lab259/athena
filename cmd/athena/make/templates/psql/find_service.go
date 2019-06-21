@@ -2,7 +2,7 @@ package templates_psql
 
 import "github.com/lab259/athena/cmd/athena/util/template"
 
-var FindServiceTemplate = template.New("find_service.go", `package {{.Collection}}
+var FindServiceTemplate = template.New("find_service.go", `package {{.Table}}
 
 import (
 	"context"
@@ -39,13 +39,13 @@ func Find(ctx context.Context, input *FindInput) (*FindOutput, error) {
 }
 `)
 
-var FindServiceTestTemplate = template.New("find_test.go", `package {{.Collection}}_test
+var FindServiceTestTemplate = template.New("find_test.go", `package {{.Table}}_test
 
 import (
 	"context"
 
 	"github.com/lab259/{{.Project}}/models"
-	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
+	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
 	"github.com/lab259/athena/testing/rscsrvtest"
 	"github.com/lab259/athena/testing/mgotest"
@@ -58,7 +58,7 @@ import (
 )
 
 var _ = Describe("Services", func() {
-	Describe("{{toCamel .Collection}}", func() {
+	Describe("{{toCamel .Table}}", func() {
 		Describe("Find", func() {
 			
 			BeforeEach(func() {
@@ -75,10 +75,10 @@ var _ = Describe("Services", func() {
 				existing.ID = uuid.Must(uuid.NewV4())
 				repo.Create(&existing)
 
-				input := {{.Collection}}.FindInput{}
+				input := {{.Table}}.FindInput{}
 				input.{{.Model}}ID = existing.ID
 
-				output, err := {{.Collection}}.Find(ctx, &input)
+				output, err := {{.Table}}.Find(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(output.{{$.Model}}.ID).To(Equal(existing.ID))
@@ -89,10 +89,10 @@ var _ = Describe("Services", func() {
 			It("should fail with not found", func() {
 				ctx := context.Background()
 
-				input := {{.Collection}}.FindInput{}
+				input := {{.Table}}.FindInput{}
 				input.{{.Model}}ID = uuid.Must(uuid.NewV4())
 
-				output, err := {{.Collection}}.Find(ctx, &input)
+				output, err := {{.Table}}.Find(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
 				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))
