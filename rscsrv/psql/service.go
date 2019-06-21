@@ -18,7 +18,7 @@ type psqlService struct {
 	psqlsrv.PsqlService
 }
 
-var DefaultPsqlService PsqlService = &psqlService{}
+var DefaultPsqlService PsqlService = NewPsqlService()
 
 func (service *psqlService) LoadConfiguration() (interface{}, error) {
 	var configuration psqlsrv.Configuration
@@ -27,4 +27,8 @@ func (service *psqlService) LoadConfiguration() (interface{}, error) {
 		return nil, err
 	}
 	return configuration, nil
+}
+
+func NewPsqlService() PsqlService {
+	return &psqlService{}
 }

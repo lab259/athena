@@ -51,6 +51,7 @@ import (
 	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/athena/testing/rscsrvtest"
+	"github.com/lab259/athena/testing/psqltest"
 	"github.com/felipemfp/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -62,13 +63,11 @@ var _ = Describe("Services", func() {
 	Describe("{{toCamel .Table}}", func() {
 		Describe("Find", func() {
 			
+
 			BeforeEach(func() {
-				rscsrvtest.Start(psqlrscsrv.DefaultPsqlService)
+				rscsrvtest.Start(psqltest.NewPsqlTestService())
 			})
 
-			AfterEach(func() {
-				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
-			})
 
 			It("should find", func() {
 				ctx := context.Background()

@@ -16,7 +16,7 @@ import (
 
 // UpdateInput holds input information for Update service
 type UpdateInput struct {
-	{{.Model}} *models.{{.Model}}
+	{{.Model}} *models.{{.Model}} `+"`"+`validate:"required"`+"`"+`
 	{{- range .Fields}}
 	{{formatFieldOptional .}}  `+"`"+`json:"{{formatFieldTag .}}" {{if hasValidation .}}validate:"omitempty,{{formatValidation .}}"{{end}}`+"`"+`
 	{{- end}}
@@ -70,6 +70,7 @@ import (
 	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/athena/testing/rscsrvtest"
+	"github.com/lab259/athena/testing/psqltest"
 	"github.com/felipemfp/faker"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -82,11 +83,7 @@ var _ = Describe("Services", func() {
 		Describe("Update", func() {
 
 			BeforeEach(func() {
-				rscsrvtest.Start(psqlrscsrv.DefaultPsqlService)
-			})
-
-			AfterEach(func() {
-				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
+				rscsrvtest.Start(psqltest.NewPsqlTestService())
 			})
 
 			It("should update", func() {
@@ -128,12 +125,13 @@ var _ = Describe("Services", func() {
 				input := {{.Table}}.UpdateInput{}
 				Expect(faker.FakeData(&input)).To(Succeed())
 				input.{{.Model}} = models.New{{.Model}}()
+				Expect(faker.FakeData(&input.{{.Model}})).To(Succeed())
 				input.{{.Model}}.ID = kallax.NewULID()
 
 				output, err := {{.Table}}.Update(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
-				Expect(errors.Reason(err)).To(Equal(kallax.ErrNoRowUpdate))
+				Expect(errors.Reason(err)).To(Equal(kallax.ErrNotWritable))
 			})
 		})
 	})

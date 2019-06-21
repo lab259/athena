@@ -22,7 +22,7 @@ func (service *mgoService) Name() string {
 	return "Mgo Service"
 }
 
-var DefaultMgoService MgoService = &mgoService{}
+var DefaultMgoService MgoService = NewMgoService()
 
 func (service *mgoService) LoadConfiguration() (interface{}, error) {
 	var configuration mgosrv.MgoServiceConfiguration
@@ -37,4 +37,8 @@ func (service *mgoService) RunWithDB(handler func(db *mgo.Database) error) error
 	return service.RunWithSession(func(session *mgo.Session) error {
 		return handler(session.DB(service.Configuration.Database))
 	})
+}
+
+func NewMgoService() MgoService {
+	return &mgoService{}
 }
