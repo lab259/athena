@@ -82,9 +82,7 @@ var _ = Describe("Services", func() {
 	Describe("{{toCamel .Table}}", func() {
 		Describe("Update", func() {
 
-			BeforeEach(func() {
-				rscsrvtest.Start(psqltest.NewPsqlTestService())
-			})
+			rscsrvtest.Setup(psqltest.NewPsqlTestService())
 
 			It("should update", func() {
 				ctx := context.Background()

@@ -68,8 +68,9 @@ var _ = Describe("Services", func() {
 	Describe("{{toCamel .Collection}}", func() {
 		Describe("List", func() {
 			
+			rscsrvtest.Setup(mgorscsrv.DefaultMgoService)
+
 			BeforeEach(func() {
-				rscsrvtest.Start(mgorscsrv.DefaultMgoService)
 				mgotest.ClearDefaultMgoService("")
 			})
 
