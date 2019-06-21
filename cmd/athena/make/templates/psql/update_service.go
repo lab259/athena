@@ -2,7 +2,7 @@ package templates_psql
 
 import "github.com/lab259/athena/cmd/athena/util/template"
 
-var UpdateServiceTemplate = template.New("update_service.go", `package {{.Collection}}
+var UpdateServiceTemplate = template.New("update_service.go", `package {{.Table}}
 
 import (
 	"context"
@@ -51,13 +51,13 @@ func Update(ctx context.Context, input *UpdateInput) (*UpdateOutput, error) {
 }
 `)
 
-var UpdateServiceTestTemplate = template.New("update_test.go", `package {{.Collection}}_test
+var UpdateServiceTestTemplate = template.New("update_test.go", `package {{.Table}}_test
 
 import (
 	"context"
 
 	"github.com/lab259/{{.Project}}/models"
-	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
+	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
 	"github.com/lab259/athena/testing/rscsrvtest"
 	"github.com/lab259/athena/testing/mgotest"
@@ -70,7 +70,7 @@ import (
 )
 
 var _ = Describe("Services", func() {
-	Describe("{{toCamel .Collection}}", func() {
+	Describe("{{toCamel .Table}}", func() {
 		Describe("Update", func() {
 			
 			BeforeEach(func() {
@@ -87,11 +87,11 @@ var _ = Describe("Services", func() {
 				existing.ID = uuid.Must(uuid.NewV4())
 				repo.Create(&existing)
 
-				input := {{.Collection}}.UpdateInput{}
+				input := {{.Table}}.UpdateInput{}
 				Expect(faker.FakeData(&input)).To(Succeed())
 				input.{{.Model}}ID = existing.ID
 
-				output, err := {{.Collection}}.Update(ctx, &input)
+				output, err := {{.Table}}.Update(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(output.{{$.Model}}.ID).To(Equal(existing.ID))
@@ -108,11 +108,11 @@ var _ = Describe("Services", func() {
 			It("should fail with not found", func() {
 				ctx := context.Background()
 
-				input := {{.Collection}}.UpdateInput{}
+				input := {{.Table}}.UpdateInput{}
 				Expect(faker.FakeData(&input)).To(Succeed())
 				input.{{.Model}}ID = uuid.Must(uuid.NewV4())
 
-				output, err := {{.Collection}}.Update(ctx, &input)
+				output, err := {{.Table}}.Update(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
 				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))

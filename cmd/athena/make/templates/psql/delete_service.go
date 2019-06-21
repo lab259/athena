@@ -2,7 +2,7 @@ package templates_psql
 
 import "github.com/lab259/athena/cmd/athena/util/template"
 
-var DeleteServiceTemplate = template.New("delete_service.go", `package {{.Collection}}
+var DeleteServiceTemplate = template.New("delete_service.go", `package {{.Table}}
 
 import (
 	"context"
@@ -38,13 +38,13 @@ func Delete(ctx context.Context, input *DeleteInput) (*DeleteOutput, error) {
 }
 `)
 
-var DeleteServiceTestTemplate = template.New("delete_test.go", `package {{.Collection}}_test
+var DeleteServiceTestTemplate = template.New("delete_test.go", `package {{.Table}}_test
 
 import (
 	"context"
 
 	"github.com/lab259/{{.Project}}/models"
-	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
+	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
 	"github.com/lab259/athena/testing/rscsrvtest"
 	"github.com/lab259/athena/testing/mgotest"
@@ -57,7 +57,7 @@ import (
 )
 
 var _ = Describe("Services", func() {
-	Describe("{{toCamel .Collection}}", func() {
+	Describe("{{toCamel .Table}}", func() {
 		Describe("Delete", func() {
 			
 			BeforeEach(func() {
@@ -74,10 +74,10 @@ var _ = Describe("Services", func() {
 				existing.ID = uuid.Must(uuid.NewV4())
 				repo.Create(&existing)
 
-				input := {{.Collection}}.DeleteInput{}
+				input := {{.Table}}.DeleteInput{}
 				input.{{.Model}}ID = existing.ID
 
-				output, err := {{.Collection}}.Delete(ctx, &input)
+				output, err := {{.Table}}.Delete(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(output.Count).To(Equal(1))
 
@@ -90,10 +90,10 @@ var _ = Describe("Services", func() {
 			It("should fail with not found", func() {
 				ctx := context.Background()
 
-				input := {{.Collection}}.DeleteInput{}
+				input := {{.Table}}.DeleteInput{}
 				input.{{.Model}}ID = uuid.Must(uuid.NewV4())
 
-				output, err := {{.Collection}}.Delete(ctx, &input)
+				output, err := {{.Table}}.Delete(ctx, &input)
 				Expect(err).To(HaveOccurred())
 				Expect(output).To(BeNil())
 				Expect(errors.Reason(err)).To(Equal(mgo.ErrNotFound))

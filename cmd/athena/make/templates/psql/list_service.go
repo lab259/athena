@@ -2,7 +2,7 @@ package templates_psql
 
 import "github.com/lab259/athena/cmd/athena/util/template"
 
-var ListServiceTemplate = template.New("list_service.go", `package {{.Collection}}
+var ListServiceTemplate = template.New("list_service.go", `package {{.Table}}
 
 import (
 	"context"
@@ -48,13 +48,13 @@ func List(ctx context.Context, input *ListInput) (*ListOutput, error) {
 }
 `)
 
-var ListServiceTestTemplate = template.New("list_test.go", `package {{.Collection}}_test
+var ListServiceTestTemplate = template.New("list_test.go", `package {{.Table}}_test
 
 import (
 	"context"
 
 	"github.com/lab259/{{.Project}}/models"
-	"github.com/lab259/{{.Project}}/services/{{.Collection}}"
+	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
 	"github.com/lab259/athena/testing/rscsrvtest"
 	"github.com/lab259/athena/testing/mgotest"
@@ -65,7 +65,7 @@ import (
 )
 
 var _ = Describe("Services", func() {
-	Describe("{{toCamel .Collection}}", func() {
+	Describe("{{toCamel .Table}}", func() {
 		Describe("List", func() {
 			
 			BeforeEach(func() {
@@ -75,9 +75,9 @@ var _ = Describe("Services", func() {
 
 			It("should list (empty)", func() {
 				ctx := context.Background()
-				input := {{.Collection}}.ListInput{}
+				input := {{.Table}}.ListInput{}
 				
-				output, err := {{.Collection}}.List(ctx, &input)
+				output, err := {{.Table}}.List(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 				
 				Expect(output.Items).To(BeEmpty())
@@ -105,11 +105,11 @@ var _ = Describe("Services", func() {
 				existing3.ID = uuid.FromStringOrNil("82818f4d-a4be-4ee9-99f3-f7f4b9cdd910")
 				Expect(repo.Create(&existing3)).To(Succeed())
 
-				input := {{.Collection}}.ListInput{
+				input := {{.Table}}.ListInput{
 					PageSize: 2,
 				}
 
-				output, err := {{.Collection}}.List(ctx, &input)
+				output, err := {{.Table}}.List(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(output.CurrentPage).To(Equal(1))
@@ -143,12 +143,12 @@ var _ = Describe("Services", func() {
 				existing3.ID = uuid.FromStringOrNil("82818f4d-a4be-4ee9-99f3-f7f4b9cdd910")
 				Expect(repo.Create(&existing3)).To(Succeed())
 
-				input := {{.Collection}}.ListInput{
+				input := {{.Table}}.ListInput{
 					CurrentPage: 2,
 					PageSize: 2,
 				}
 
-				output, err := {{.Collection}}.List(ctx, &input)
+				output, err := {{.Table}}.List(ctx, &input)
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(output.CurrentPage).To(Equal(2))
