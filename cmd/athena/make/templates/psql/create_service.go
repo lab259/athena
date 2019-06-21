@@ -6,7 +6,8 @@ var CreateServiceTemplate = template.New("create_service.go", `package {{.Table}
 
 import (
 	"context"
-
+	
+	"gopkg.in/src-d/go-kallax.v1"
 	"github.com/lab259/athena/validator"
 	"github.com/lab259/{{.Project}}/models"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
@@ -27,19 +28,20 @@ type CreateOutput struct {
 
 // Create creates a new {{.Model}}
 func Create(ctx context.Context, input *CreateInput) (*CreateOutput, error) {
-	db, err := psqlrscsrv.DefaultPsqlService.DB()
-	if err != nil {
-		return nil
-	}
-
-	store := models.New{{.Model}}Store(db)
-	
 	err := validator.Validate(input)
 	if err != nil {
 		return nil, errors.Wrap(err, errors.Validation(), errors.Module("{{.Table}}_service"))
 	}
 
+	db, err := psqlrscsrv.DefaultPsqlService.DB()
+	if err != nil {
+		return nil, errors.Wrap(err, errors.Code("db-available"), errors.Module("{{.Table}}_service"))
+	}
+
+	store := models.New{{.Model}}Store(db)
+
 	obj := models.New{{.Model}}()
+	obj.ID = kallax.NewULID()
 	{{- range .Fields}}
 	obj.{{formatFieldName .}} = input.{{formatFieldName .}}
 	{{- end}}
@@ -50,7 +52,7 @@ func Create(ctx context.Context, input *CreateInput) (*CreateOutput, error) {
 	}
 
 	return &CreateOutput{
-		{{.Model}}: &obj,
+		{{.Model}}: obj,
 	}, nil
 }
 `)
@@ -58,6 +60,8 @@ func Create(ctx context.Context, input *CreateInput) (*CreateOutput, error) {
 var CreateServiceTestTemplate = template.New("create_test.go", `package {{.Table}}_test
 
 import (
+	"context"
+
 	"github.com/lab259/{{.Project}}/models"
 	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
@@ -74,8 +78,14 @@ var _ = Describe("Services", func() {
 			BeforeEach(func() {
 				rscsrvtest.Start(&psqlrscsrv.DefaultPsqlService)
 			})
+
+			AfterEach(func() {
+				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
+			})
 			
 			It("should create", func() {
+				ctx := context.Background()
+
 				db, err := psqlrscsrv.DefaultPsqlService.DB()
 				Expect(err).ToNot(HaveOccurred())
 

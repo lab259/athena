@@ -7,9 +7,9 @@ var ListServiceTemplate = template.New("list_service.go", `package {{.Table}}
 import (
 	"context"
 
-	"github.com/lab259/repository"
 	"github.com/lab259/{{.Project}}/models"
 	"github.com/lab259/athena/pagination"
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/errors"
 )
 
@@ -29,22 +29,38 @@ type ListOutput struct {
 
 // List returns a paginated list of {{.Model}}
 func List(ctx context.Context, input *ListInput) (*ListOutput, error) {
-	var objs []*models.{{.Model}}
-	repo := models.New{{.Model}}Repository(ctx)
-
-	pageSize, currentPage := pagination.Parse(input.PageSize, input.CurrentPage)
-
-	total, err := repo.CountAndFindAll(&objs, repository.WithPage(currentPage-1, pageSize))
+	db, err := psqlrscsrv.DefaultPsqlService.DB()
 	if err != nil {
-		return nil, errors.Wrap(err,errors.Code("repository-list-failed"), errors.Module("users_service"))
+		return nil, errors.Wrap(err, errors.Code("db-available"), errors.Module("{{.Table}}_service"))
 	}
 
-	return &ListOutput{
-		Items: objs,
-		Total: total,
-		CurrentPage: currentPage,
-		PageSize: pageSize,
-	}, nil
+	var output ListOutput
+
+	store := models.New{{.Model}}Store(db)
+	page := pagination.Parse(input.PageSize, input.CurrentPage)
+
+	err = store.Transaction(func(s *models.{{.Model}}Store) error {
+		q := models.New{{.Model}}Query().Limit(uint64(page.Limit)).Offset(uint64(page.Offset))
+		objs, err := s.FindAll(q)
+		if err != nil {
+			return errors.Wrap(err, errors.Code("list-failed"), errors.Module("{{.Table}}_service"))
+		}
+		count, err := s.Count(q)
+		if err != nil {
+			return errors.Wrap(err, errors.Code("count-failed"), errors.Module("{{.Table}}_service"))
+		}
+
+		output.CurrentPage = page.CurrentPage
+		output.PageSize = page.PageSize
+		output.Items = objs
+		output.Total = int(count)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &output, nil
 }
 `)
 
@@ -53,15 +69,14 @@ var ListServiceTestTemplate = template.New("list_test.go", `package {{.Table}}_t
 import (
 	"context"
 
-	"github.com/lab259/{{.Project}}/models"
-	"github.com/lab259/{{.Project}}/services/{{.Table}}"
-	mgorscsrv "github.com/lab259/athena/rscsrv/mgo"
-	"github.com/lab259/athena/testing/rscsrvtest"
-	"github.com/lab259/athena/testing/mgotest"
-	"github.com/gofrs/uuid"
 	"github.com/felipemfp/faker"
+	"github.com/lab259/athena/models"
+	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
+	"github.com/lab259/athena/services/accounts"
+	"github.com/lab259/athena/testing/rscsrvtest"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gopkg.in/src-d/go-kallax.v1"
 )
 
 var _ = Describe("Services", func() {
@@ -69,8 +84,11 @@ var _ = Describe("Services", func() {
 		Describe("List", func() {
 			
 			BeforeEach(func() {
-				rscsrvtest.Start(&mgorscsrv.DefaultMgoService)
-				mgotest.ClearDefaultMgoService("")
+				rscsrvtest.Start(&psqlrscsrv.DefaultPsqlService)
+			})
+
+			AfterEach(func() {
+				Expect(psqlrscsrv.DefaultPsqlService.Stop()).To(Succeed())
 			})
 
 			It("should list (empty)", func() {
@@ -88,22 +106,26 @@ var _ = Describe("Services", func() {
 
 			It("should list (with 3, first page)", func() {
 				ctx := context.Background()
-				repo := models.New{{.Model}}Repository(ctx)
 
-				existing1 := models.{{.Model}}{}
+				db, err := psqlrscsrv.DefaultPsqlService.DB()
+				Expect(err).ToNot(HaveOccurred())
+
+				store := models.New{{.Model}}Store(db)
+
+				existing1 := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing1)).To(Succeed())
-				existing1.ID = uuid.FromStringOrNil("397336c5-b8cd-4581-97cd-ba03568c5191")
-				Expect(repo.Create(&existing1)).To(Succeed())
+				existing1.ID = kallax.NewULID()
+				Expect(store.Insert(existing1)).To(Succeed())
 
-				existing2 := models.{{.Model}}{}
+				existing2 := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing2)).To(Succeed())
-				existing2.ID = uuid.FromStringOrNil("406ff0d8-3af7-43b6-a595-17969d6def71")
-				Expect(repo.Create(&existing2)).To(Succeed())
+				existing2.ID = kallax.NewULID()
+				Expect(store.Insert(existing2)).To(Succeed())
 
-				existing3 := models.{{.Model}}{}
+				existing3 := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing3)).To(Succeed())
-				existing3.ID = uuid.FromStringOrNil("82818f4d-a4be-4ee9-99f3-f7f4b9cdd910")
-				Expect(repo.Create(&existing3)).To(Succeed())
+				existing3.ID = kallax.NewULID()
+				Expect(store.Insert(existing3)).To(Succeed())
 
 				input := {{.Table}}.ListInput{
 					PageSize: 2,
@@ -117,31 +139,38 @@ var _ = Describe("Services", func() {
 				Expect(output.Total).To(Equal(3))
 
 				Expect(output.Items[0].ID).To(Equal(existing1.ID))
-				{{range .Fields}}Expect(output.Items[0].{{formatFieldName .}}).To(Equal(existing1.{{formatFieldName .}}))
-				{{end}}
+				{{- range .Fields}}
+				Expect(output.Items[0].{{formatFieldName .}}).To(Equal(existing1.{{formatFieldName .}}))
+				{{- end}}
+				
 				Expect(output.Items[1].ID).To(Equal(existing2.ID))
-				{{range .Fields}}Expect(output.Items[1].{{formatFieldName .}}).To(Equal(existing2.{{formatFieldName .}}))
-				{{end}}
+				{{- range .Fields}}
+				Expect(output.Items[1].{{formatFieldName .}}).To(Equal(existing2.{{formatFieldName .}}))
+				{{- end}}
 			})
 
 			It("should list (with 3, second page)", func() {
 				ctx := context.Background()
-				repo := models.New{{.Model}}Repository(ctx)
 
-				existing1 := models.{{.Model}}{}
+				db, err := psqlrscsrv.DefaultPsqlService.DB()
+				Expect(err).ToNot(HaveOccurred())
+
+				store := models.New{{.Model}}Store(db)
+
+				existing1 := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing1)).To(Succeed())
-				existing1.ID = uuid.FromStringOrNil("397336c5-b8cd-4581-97cd-ba03568c5191")
-				Expect(repo.Create(&existing1)).To(Succeed())
-
-				existing2 := models.{{.Model}}{}
+				existing1.ID = kallax.NewULID()
+				Expect(store.Insert(existing1)).To(Succeed())
+				
+				existing2 := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing2)).To(Succeed())
-				existing2.ID = uuid.FromStringOrNil("406ff0d8-3af7-43b6-a595-17969d6def71")
-				Expect(repo.Create(&existing2)).To(Succeed())
+				existing2.ID = kallax.NewULID()
+				Expect(store.Insert(existing2)).To(Succeed())
 
-				existing3 := models.{{.Model}}{}
+				existing3 := models.New{{.Model}}()
 				Expect(faker.FakeData(&existing3)).To(Succeed())
-				existing3.ID = uuid.FromStringOrNil("82818f4d-a4be-4ee9-99f3-f7f4b9cdd910")
-				Expect(repo.Create(&existing3)).To(Succeed())
+				existing3.ID = kallax.NewULID()
+				Expect(store.Insert(existing3)).To(Succeed())
 
 				input := {{.Table}}.ListInput{
 					CurrentPage: 2,
@@ -156,8 +185,9 @@ var _ = Describe("Services", func() {
 				Expect(output.Total).To(Equal(3))
 
 				Expect(output.Items[0].ID).To(Equal(existing3.ID))
-				{{range .Fields}}Expect(output.Items[0].{{formatFieldName .}}).To(Equal(existing3.{{formatFieldName .}}))
-				{{end}}
+				{{- range .Fields}}
+				Expect(output.Items[0].{{formatFieldName .}}).To(Equal(existing3.{{formatFieldName .}}))
+				{{- end}}
 			})
 		})
 	})
