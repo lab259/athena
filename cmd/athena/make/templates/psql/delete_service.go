@@ -68,10 +68,7 @@ var _ = Describe("Services", func() {
 	Describe("{{toCamel .Table}}", func() {
 		Describe("Delete", func() {
 
-			BeforeEach(func() {
-				rscsrvtest.Start(psqltest.NewPsqlTestService())
-			})
-
+			rscsrvtest.Setup(psqltest.NewPsqlTestService())
 
 			It("should delete", func() {
 				ctx := context.Background()

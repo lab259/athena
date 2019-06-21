@@ -63,11 +63,7 @@ var _ = Describe("Services", func() {
 	Describe("{{toCamel .Table}}", func() {
 		Describe("Find", func() {
 			
-
-			BeforeEach(func() {
-				rscsrvtest.Start(psqltest.NewPsqlTestService())
-			})
-
+			rscsrvtest.Setup(psqltest.NewPsqlTestService())
 
 			It("should find", func() {
 				ctx := context.Background()
