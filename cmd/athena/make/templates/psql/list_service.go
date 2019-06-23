@@ -70,9 +70,9 @@ import (
 	"context"
 
 	"github.com/felipemfp/faker"
-	"github.com/lab259/athena/models"
+	"github.com/lab259/{{.Project}}/models"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
-	"github.com/lab259/athena/services/accounts"
+	"github.com/lab259/{{.Project}}/services/{{.Table}}"
 	"github.com/lab259/athena/testing/rscsrvtest"
 	"github.com/lab259/athena/testing/psqltest"
 	. "github.com/onsi/ginkgo"
