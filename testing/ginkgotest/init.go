@@ -3,10 +3,11 @@ package ginkgotest
 import (
 	"fmt"
 	"os"
+	"path"
+	"path/filepath"
+	"strings"
 	"testing"
-	"time"
 
-	"github.com/gosimple/slug"
 	"github.com/jamillosantos/macchiato"
 	"github.com/lab259/athena/config"
 	"github.com/lab259/athena/testing/envtest"
@@ -25,18 +26,20 @@ func Init(description string, t *testing.T) {
 				panic(err)
 			}
 		}
+
 		dir, _ := os.Getwd()
 		ginkgo.GinkgoWriter.Write([]byte(fmt.Sprintf("CWD: %s\n", dir)))
-		ginkgo.GinkgoWriter.Write([]byte(fmt.Sprintf("Starting with ENV: %s\n", os.Getenv("ENV"))))
+		ginkgo.GinkgoWriter.Write([]byte(fmt.Sprintf("ENV: %s\n", os.Getenv("ENV"))))
 		gomega.RegisterFailHandler(ginkgo.Fail)
 
 		if os.Getenv("CI") == "" {
 			macchiato.RunSpecs(t, description)
 		} else {
-			reporterOutputDir := fmt.Sprintf("%s/test-results", config.ProjectRoot())
-			os.RemoveAll(reporterOutputDir)
+			projectRoot := config.ProjectRoot()
+			project := filepath.Base(projectRoot)
+			reporterOutputDir := path.Join(projectRoot, "test-results", project, strings.Replace(dir, projectRoot, "", 1))
 			os.MkdirAll(reporterOutputDir, os.ModePerm)
-			junitReporter := reporters.NewJUnitReporter(fmt.Sprintf("%s/%d_%s.xml", reporterOutputDir, time.Now().Unix(), slug.Make(description)))
+			junitReporter := reporters.NewJUnitReporter(path.Join(reporterOutputDir, "results.xml"))
 			macchiatoReporter := macchiato.NewReporter()
 			ginkgo.RunSpecsWithCustomReporters(t, description, []ginkgo.Reporter{
 				macchiatoReporter,
