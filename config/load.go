@@ -7,12 +7,29 @@ import (
 	rscsrv "github.com/lab259/go-rscsrv"
 )
 
+var (
+	projectRoot string
+)
+
 // ProjectRoot return project root (from "PROJECT_ROOT" or current working directory).
 func ProjectRoot() string {
-	projectRoot := os.Getenv("PROJECT_ROOT")
 	if projectRoot == "" {
-		if dir, err := os.Getwd(); err == nil {
-			return dir
+		projectRoot = os.Getenv("PROJECT_ROOT")
+		if dir, err := os.Getwd(); err == nil && projectRoot == "" {
+			projectRoot = dir
+
+			for {
+				if _, err := os.Stat(path.Join(projectRoot, "go.sum")); err != nil {
+					if projectRoot == "/" {
+						projectRoot = "."
+						break
+					} else {
+						projectRoot = path.Dir(projectRoot)
+					}
+				} else {
+					break
+				}
+			}
 		}
 	}
 	return projectRoot
@@ -35,12 +52,9 @@ func configurationFolder() string {
 	return path.Join(projectRoot, "configs", Environment())
 }
 
-var defaultConfigurationLoader rscsrv.ConfigurationLoader
-var defaultConfigurationUnmarshaler rscsrv.ConfigurationUnmarshaler
-
-func init() {
-	defaultConfigurationUnmarshaler = &rscsrv.ConfigurationUnmarshalerYaml{}
-}
+var (
+	defaultConfigurationUnmarshaler rscsrv.ConfigurationUnmarshaler = &rscsrv.ConfigurationUnmarshalerYaml{}
+)
 
 // Load loads a file to a pointer on the current environment loaded from the
 // `ENV` environment variable.
@@ -48,9 +62,9 @@ func init() {
 // `file` defines which file should be loaded from the environment.
 // `dst` is a pointer.
 func Load(file string, dst interface{}) error {
-	defaultConfigurationLoader = rscsrv.NewFileConfigurationLoader(configurationFolder())
+	loader := rscsrv.NewFileConfigurationLoader(configurationFolder())
 
-	config, err := defaultConfigurationLoader.Load(file)
+	config, err := loader.Load(file)
 	if err != nil {
 		return err
 	}
