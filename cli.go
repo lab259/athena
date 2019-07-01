@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lab259/athena/config"
+
 	cli "github.com/jawher/mow.cli"
 	rscsrv "github.com/lab259/go-rscsrv"
 	"github.com/lab259/rlog"
@@ -33,6 +35,7 @@ func NewCLI(name, description string) *cliBuilder {
 	hostname, _ := os.Hostname()
 	return &cliBuilder{
 		cli:         cli.App(name, description),
+		env:         config.Environment(),
 		bindAddress: "127.0.0.1:3000",
 		wait:        0,
 		hostname:    hostname,

@@ -2,11 +2,15 @@ package ginkgotest
 
 import (
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/lab259/rlog"
 
 	"github.com/jamillosantos/macchiato"
 	"github.com/lab259/athena/config"
@@ -16,17 +20,24 @@ import (
 	"github.com/onsi/gomega"
 )
 
-func Init(description string, t *testing.T) {
+type SetWriter func(io.Writer)
+
+func Init(description string, t *testing.T, loggers ...SetWriter) {
+	log.SetOutput(ginkgo.GinkgoWriter)
+	rlog.SetOutput(ginkgo.GinkgoWriter)
+	for _, logger := range loggers {
+		logger(ginkgo.GinkgoWriter)
+	}
+
+	env := os.Getenv("ENV")
+	if env == "" {
+		env = "test"
+	}
+
 	envtest.Override(map[string]string{
 		"PROJECT_ROOT": config.ProjectRoot(),
+		"ENV":          env,
 	}, func() error {
-		if os.Getenv("ENV") == "" {
-			err := os.Setenv("ENV", "test")
-			if err != nil {
-				panic(err)
-			}
-		}
-
 		dir, _ := os.Getwd()
 		ginkgo.GinkgoWriter.Write([]byte(fmt.Sprintf("CWD: %s\n", dir)))
 		ginkgo.GinkgoWriter.Write([]byte(fmt.Sprintf("ENV: %s\n", os.Getenv("ENV"))))
