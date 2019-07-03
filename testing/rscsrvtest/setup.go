@@ -7,7 +7,7 @@ import (
 )
 
 func Setup(services ...rscsrv.Service) {
-	serviceStarter := rscsrv.NewServiceStarter(services, &rscsrv.NopServiceReporter{})
+	serviceStarter := rscsrv.NewServiceStarter(&rscsrv.NopStarterReporter{}, services...)
 
 	ginkgo.BeforeEach(func() {
 		gomega.ExpectWithOffset(1, serviceStarter.Start()).To(gomega.Succeed())

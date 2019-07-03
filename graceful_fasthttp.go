@@ -11,7 +11,7 @@ import (
 	"github.com/lab259/rlog"
 )
 
-func GracefulFastHTTP(srv *fasthttp.Server, addr string, serviceStarter *rscsrv.ServiceStarter) {
+func GracefulFastHTTP(srv *fasthttp.Server, addr string, serviceStarter rscsrv.ServiceStarter) {
 	done := make(chan bool, 1)
 
 	go func() {
