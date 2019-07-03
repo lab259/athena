@@ -10,6 +10,8 @@ import (
 
 type PsqlService interface {
 	rscsrv.Service
+	rscsrv.Configurable
+	rscsrv.Startable
 	DB() (*sql.DB, error)
 	Ping() error
 }

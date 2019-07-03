@@ -12,7 +12,7 @@ import (
 	"github.com/lab259/rlog"
 )
 
-func GracefulHTTP(srv *http.Server, serviceStarter *rscsrv.ServiceStarter) {
+func GracefulHTTP(srv *http.Server, serviceStarter rscsrv.ServiceStarter) {
 	done := make(chan bool, 1)
 
 	go func() {

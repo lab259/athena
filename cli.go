@@ -28,7 +28,7 @@ type cliBuilder struct {
 	wait           int
 	bindAddress    string
 	hostname       string
-	serviceStarter *rscsrv.ServiceStarter
+	serviceStarter rscsrv.ServiceStarter
 }
 
 func NewCLI(name, description string) *cliBuilder {
@@ -53,7 +53,7 @@ func (b *cliBuilder) Environment(env string) *cliBuilder {
 	return b
 }
 
-func (b *cliBuilder) ServiceStarter(serviceStarter *rscsrv.ServiceStarter) *cliBuilder {
+func (b *cliBuilder) ServiceStarter(serviceStarter rscsrv.ServiceStarter) *cliBuilder {
 	b.serviceStarter = serviceStarter
 	return b
 }
