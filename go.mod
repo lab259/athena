@@ -15,11 +15,10 @@ require (
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/klauspost/compress v1.7.0 // indirect
 	github.com/lab259/go-rscsrv v0.2.1
-	github.com/lab259/go-rscsrv-mgo v1.0.0
-	github.com/lab259/go-rscsrv-psql v0.1.0
+	github.com/lab259/go-rscsrv-mgo v1.1.0
+	github.com/lab259/go-rscsrv-psql v0.3.0
 	github.com/lab259/go-rscsrv-redigo v0.0.0-20190703153033-796cf56fc495
-	github.com/lab259/hermes v1.0.1-0.20190703175301-1bf2449b6baa
-	github.com/lab259/http v0.0.2 // indirect
+	github.com/lab259/hermes v1.1.0
 	github.com/lab259/rlog v2.0.1+incompatible
 	github.com/lib/pq v1.1.1
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
