@@ -101,8 +101,8 @@ func (service *PsqlTestService) Start() error {
 	}
 
 	service.db = db
-	psqlrscsrv.DefaultPsqlService = service
 	service.started = true
+	psqlrscsrv.DefaultPsqlService = service
 	return nil
 }
 
@@ -116,6 +116,7 @@ func (service *PsqlTestService) Stop() error {
 	}
 
 	service.db = nil
+	service.started = false
 	psqlrscsrv.DefaultPsqlService = service.defaultService
 	return nil
 }
