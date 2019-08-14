@@ -20,12 +20,17 @@ func init() {
 	})
 }
 
-// GetInstance returns the Validate instance.
-func GetInstance() *validator_v9.Validate {
+// New returns a new instance of Validate with sane defaults.
+func New() *validator_v9.Validate {
+	return validator_v9.New()
+}
+
+// Instance returns the Validate instance.
+func Instance() *validator_v9.Validate {
 	return validate
 }
 
-// Validate is a shortcut for GetInstance().Struct()
+// Validate is a shortcut for Instance().Struct()
 func Validate(s interface{}) error {
 	return validate.Struct(s)
 }
