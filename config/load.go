@@ -3,7 +3,11 @@ package config
 import (
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 
+	"github.com/iancoleman/strcase"
+	"github.com/kelseyhightower/envconfig"
 	rscsrv "github.com/lab259/go-rscsrv"
 )
 
@@ -64,9 +68,16 @@ var (
 func Load(file string, dst interface{}) error {
 	loader := rscsrv.NewFileConfigurationLoader(configurationFolder())
 
+	name := strings.TrimSuffix(file, filepath.Ext(file))
+
 	config, err := loader.Load(file)
 	if err != nil {
 		return err
 	}
-	return defaultConfigurationUnmarshaler.Unmarshal(config, dst)
+
+	if err := defaultConfigurationUnmarshaler.Unmarshal(config, dst); err != nil {
+		return err
+	}
+
+	return envconfig.Process(strcase.ToScreamingSnake(name), dst)
 }
