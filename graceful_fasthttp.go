@@ -8,7 +8,7 @@ import (
 	rscsrv "github.com/lab259/go-rscsrv"
 	"github.com/valyala/fasthttp"
 
-	"github.com/lab259/rlog"
+	"github.com/lab259/rlog/v2"
 )
 
 func GracefulFastHTTP(srv *fasthttp.Server, addr string, serviceStarter rscsrv.ServiceStarter) {

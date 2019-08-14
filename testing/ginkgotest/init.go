@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lab259/rlog"
+	"github.com/lab259/rlog/v2"
 
 	"github.com/jamillosantos/macchiato"
 	"github.com/lab259/athena/config"

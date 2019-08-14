@@ -9,7 +9,7 @@ import (
 
 	rscsrv "github.com/lab259/go-rscsrv"
 
-	"github.com/lab259/rlog"
+	"github.com/lab259/rlog/v2"
 )
 
 func GracefulHTTP(srv *http.Server, serviceStarter rscsrv.ServiceStarter) {
