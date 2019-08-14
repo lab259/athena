@@ -4,22 +4,47 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/DATA-DOG/go-txdb"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
 	"github.com/lab259/go-rscsrv"
-	"gopkg.in/src-d/go-kallax.v1"
-
-	"github.com/DATA-DOG/go-txdb"
 	psqlsrv "github.com/lab259/go-rscsrv-psql"
 	_ "github.com/lib/pq"
+	"gopkg.in/src-d/go-kallax.v1"
 )
 
 func NewPsqlTestService() *PsqlTestService {
-	return &PsqlTestService{}
+	var psqlTestService PsqlTestService
+
+	service := psqlrscsrv.NewPsqlService()
+	config, err := service.LoadConfiguration()
+	if err != nil {
+		panic(err)
+	}
+
+	switch c := config.(type) {
+	case psqlsrv.Configuration:
+		psqlTestService.Configuration = c
+	case *psqlsrv.Configuration:
+		psqlTestService.Configuration = *c
+	default:
+		panic(rscsrv.ErrWrongConfigurationInformed)
+	}
+
+	psqlTestService.defaultService = service
+	psqlTestService.id = kallax.NewULID()
+	psqlTestService.identifier = fmt.Sprintf("txdb_%s", psqlTestService.id)
+	txdb.Register(psqlTestService.identifier, "postgres", psqlTestService.Configuration.ConnectionString())
+
+	return &psqlTestService
 }
 
 type PsqlTestService struct {
-	db            *sql.DB
-	Configuration psqlsrv.Configuration
+	started        bool
+	id             kallax.ULID
+	identifier     string
+	defaultService psqlrscsrv.PsqlService
+	db             *sql.DB
+	Configuration  psqlsrv.Configuration
 }
 
 func (service *PsqlTestService) Name() string {
@@ -27,7 +52,7 @@ func (service *PsqlTestService) Name() string {
 }
 
 func (service *PsqlTestService) LoadConfiguration() (interface{}, error) {
-	return psqlrscsrv.NewPsqlService().LoadConfiguration()
+	return service.defaultService.LoadConfiguration()
 }
 
 func (service *PsqlTestService) ApplyConfiguration(configuration interface{}) error {
@@ -54,17 +79,11 @@ func (service *PsqlTestService) Restart() error {
 }
 
 func (service *PsqlTestService) Start() error {
-	if service.db != nil {
-		if err := service.Stop(); err != nil {
-			return err
-		}
+	if service.started {
+		return nil
 	}
 
-	ulid := kallax.NewULID()
-	identifier := fmt.Sprintf("txdb_%s", ulid)
-	txdb.Register(identifier, "postgres", service.Configuration.ConnectionString())
-
-	db, err := sql.Open(identifier, ulid.String())
+	db, err := sql.Open(service.identifier, service.id.String())
 	if err != nil {
 		return err
 	}
@@ -77,13 +96,18 @@ func (service *PsqlTestService) Start() error {
 		return err
 	}
 
+	if err := psqlrscsrv.DefaultPsqlService.Stop(); err != nil {
+		return err
+	}
+
 	service.db = db
 	psqlrscsrv.DefaultPsqlService = service
+	service.started = true
 	return nil
 }
 
 func (service *PsqlTestService) Stop() error {
-	if service.db == nil {
+	if !service.started {
 		return nil
 	}
 
@@ -92,12 +116,12 @@ func (service *PsqlTestService) Stop() error {
 	}
 
 	service.db = nil
-	psqlrscsrv.DefaultPsqlService = psqlrscsrv.NewPsqlService()
+	psqlrscsrv.DefaultPsqlService = service.defaultService
 	return nil
 }
 
 func (service *PsqlTestService) Ping() error {
-	if service.db == nil {
+	if !service.started {
 		return rscsrv.ErrServiceNotRunning
 	}
 
@@ -105,7 +129,7 @@ func (service *PsqlTestService) Ping() error {
 }
 
 func (service *PsqlTestService) DB() (*sql.DB, error) {
-	if service.db == nil {
+	if !service.started {
 		return nil, rscsrv.ErrServiceNotRunning
 	}
 
