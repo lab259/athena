@@ -18,9 +18,9 @@ require (
 	github.com/lab259/go-rscsrv v0.2.1
 	github.com/lab259/go-rscsrv-mgo v1.1.0
 	github.com/lab259/go-rscsrv-psql v0.3.0
-	github.com/lab259/go-rscsrv-redigo v0.0.0-20190703153033-796cf56fc495
+	github.com/lab259/go-rscsrv-redigo v1.1.0
 	github.com/lab259/hermes v1.1.0
-	github.com/lab259/rlog v2.0.1+incompatible
+	github.com/lab259/rlog/v2 v2.1.0
 	github.com/lib/pq v1.1.1
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect

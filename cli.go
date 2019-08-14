@@ -10,7 +10,7 @@ import (
 
 	cli "github.com/jawher/mow.cli"
 	rscsrv "github.com/lab259/go-rscsrv"
-	"github.com/lab259/rlog"
+	"github.com/lab259/rlog/v2"
 )
 
 type CLIOptions struct {
