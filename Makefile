@@ -19,9 +19,9 @@ test-watch:
 
 coverage-ci:
 	@mkdir -p $(COVERDIR)
-	@ginkgo -r -covermode=count --cover --trace ./
+	@ginkgo -r -covermode=count --cover --randomizeAllSpecs --randomizeSuites --failOnPending --trace --compilers=2
 	@echo "mode: count" > "${COVERAGEFILE}"
-	@find ./* -type f -name *.coverprofile -exec grep -h -v "^mode:" {} >> "${COVERAGEFILE}" \; -exec rm -f {} \;
+	@find . -type f -name '*.coverprofile' -exec cat {} \; -exec rm -f {} \; | grep -h -v "^mode:" >> ${COVERAGEFILE}
 
 coverage: coverage-ci
 	@sed -i -e "s|_$(CURDIR)/|./|g" "${COVERAGEFILE}"
