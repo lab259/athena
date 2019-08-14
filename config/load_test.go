@@ -14,12 +14,7 @@ import (
 )
 
 func TestLoad(t *testing.T) {
-	envtest.Override(map[string]string{
-		"PROJECT_ROOT": path.Join(projectFolder(), "test", "testdata"),
-	}, func() error {
-		ginkgotest.Init("athena/config Test Suite", t)
-		return nil
-	})
+	ginkgotest.Init("athena/config Test Suite", t)
 }
 
 type ServiceConfiguration struct {
