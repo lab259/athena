@@ -43,7 +43,7 @@ var _ = Describe("Load", func() {
 	})
 
 	It("should override with environment variables", func() {
-		envtest.Override(map[string]string{
+		envtest.With(map[string]string{
 			"SERVICE_PORT":    "5656",
 			"SERVICE_TIMEOUT": "5s",
 		}, func() error {
