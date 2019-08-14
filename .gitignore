@@ -15,3 +15,5 @@ vendor
 .cover
 coverage.txt
 bin/
+test-results/
+*.coverprofile
