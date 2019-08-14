@@ -13,6 +13,7 @@ require (
 	github.com/jawher/mow.cli v1.1.0
 	github.com/jinzhu/inflection v1.0.0
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/klauspost/compress v1.7.0 // indirect
 	github.com/lab259/go-rscsrv v0.2.1
 	github.com/lab259/go-rscsrv-mgo v1.1.0
