@@ -36,7 +36,7 @@ func (s *clockService) Stop() error {
 	return nil
 }
 
-var _ = Describe("PsqlTestService", func() {
+var _ = Describe("ClockServiceTest", func() {
 	var serv clockService
 	var beforeCalled time.Time
 	var afterCalled time.Time
