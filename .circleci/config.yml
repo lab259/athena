@@ -3,6 +3,7 @@ jobs:
   build:
     docker:
       - image: lab259/go-circleci:1.12
+      - image: circleci/postgres:alpine
     steps:
       - checkout
       - restore_cache:
