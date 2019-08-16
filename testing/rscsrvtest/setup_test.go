@@ -49,11 +49,11 @@ var _ = Describe("ClockServiceTest", func() {
 		time.Sleep(time.Millisecond)
 	}).Setup(&serv)
 
-	It("should run before hook after services are started", func() {
-		Expect(beforeCalled).To(BeTemporally(">", serv.startedAt))
+	AfterSuite(func() {
+		Expect(afterCalled).To(BeTemporally("<", serv.stoppedAt))
 	})
 
-	It("should run after hook before services are stopped", func() {
-		Expect(afterCalled).To(BeTemporally("<", serv.stoppedAt))
+	It("should run before hook after services are started", func() {
+		Expect(beforeCalled).To(BeTemporally(">", serv.startedAt))
 	})
 })
