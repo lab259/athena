@@ -1,6 +1,6 @@
 github.com/AdhityaRamadhanus/fasthttpcors v0.0.0-20170121111917-d4c07198763a/go.mod h1:C0A1KeiVHs+trY6gUTPhhGammbrZ30ZfXRW/nuT7HLw=
-github.com/DATA-DOG/go-txdb v0.1.2 h1:Rkgv1GEOrnZhzMDS+DS81QTatJrYGxDpYI3ELIdamZo=
-github.com/DATA-DOG/go-txdb v0.1.2/go.mod h1:aDC9AAfOY+kLbhVTKKXOwkqr2844my+djxj+Ou4wNb4=
+github.com/DATA-DOG/go-txdb v0.1.3-0.20190725140423-6ca798a10f44 h1:qZn3Fjif1ml1DGcmEC2j2uu8wnFsJ7wLe6j3gdpNYTY=
+github.com/DATA-DOG/go-txdb v0.1.3-0.20190725140423-6ca798a10f44/go.mod h1:DhAhxMXZpUJVGnT+p9IbzJoRKvlArO2pkHjnGX7o0n0=
 github.com/Masterminds/squirrel v1.1.0 h1:baP1qLdoQCeTw3ifCdOq2dkYc6vGcmRdaociKLbEJXs=
 github.com/Masterminds/squirrel v1.1.0/go.mod h1:yaPeOnPG5ZRwL9oKdTsO/prlkPbXWZlRVMQ/gGlzIuA=
 github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=

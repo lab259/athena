@@ -3,7 +3,7 @@ module github.com/lab259/athena
 go 1.12
 
 require (
-	github.com/DATA-DOG/go-txdb v0.1.2
+	github.com/DATA-DOG/go-txdb v0.1.3-0.20190725140423-6ca798a10f44
 	github.com/Masterminds/squirrel v1.1.0 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-sql-driver/mysql v1.4.1 // indirect
