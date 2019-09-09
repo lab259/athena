@@ -3,9 +3,11 @@ package psqltest
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/DATA-DOG/go-txdb"
 	psqlrscsrv "github.com/lab259/athena/rscsrv/psql"
+	"github.com/lab259/athena/testing/envtest"
 	"github.com/lab259/go-rscsrv"
 	psqlsrv "github.com/lab259/go-rscsrv-psql"
 	_ "github.com/lib/pq"
@@ -15,25 +17,38 @@ import (
 func NewPsqlTestService() *PsqlTestService {
 	var psqlTestService PsqlTestService
 
-	service := psqlrscsrv.NewPsqlService()
-	config, err := service.LoadConfiguration()
+	env := os.Getenv("ENV")
+	if env == "" {
+		env = "test"
+	}
+
+	err := envtest.With(map[string]string{
+		"ENV": env,
+	}, func() error {
+		service := psqlrscsrv.NewPsqlService()
+		config, err := service.LoadConfiguration()
+		if err != nil {
+			return err
+		}
+
+		switch c := config.(type) {
+		case psqlsrv.Configuration:
+			psqlTestService.Configuration = c
+		case *psqlsrv.Configuration:
+			psqlTestService.Configuration = *c
+		default:
+			return rscsrv.ErrWrongConfigurationInformed
+		}
+
+		psqlTestService.defaultService = service
+		psqlTestService.id = kallax.NewULID()
+		psqlTestService.identifier = fmt.Sprintf("txdb_%s", psqlTestService.id)
+		txdb.Register(psqlTestService.identifier, "postgres", psqlTestService.Configuration.ConnectionString())
+		return nil
+	})
 	if err != nil {
 		panic(err)
 	}
-
-	switch c := config.(type) {
-	case psqlsrv.Configuration:
-		psqlTestService.Configuration = c
-	case *psqlsrv.Configuration:
-		psqlTestService.Configuration = *c
-	default:
-		panic(rscsrv.ErrWrongConfigurationInformed)
-	}
-
-	psqlTestService.defaultService = service
-	psqlTestService.id = kallax.NewULID()
-	psqlTestService.identifier = fmt.Sprintf("txdb_%s", psqlTestService.id)
-	txdb.Register(psqlTestService.identifier, "postgres", psqlTestService.Configuration.ConnectionString())
 
 	return &psqlTestService
 }
