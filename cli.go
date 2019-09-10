@@ -21,7 +21,7 @@ type CLIOptions struct {
 	BindAddress *string
 	Wait        *int
 	Hostname    *string
-	isDryRun    *bool
+	IsDryRun    *bool
 }
 
 type cliBuilder struct {
@@ -120,12 +120,12 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 			EnvVar: "HOSTNAME",
 		})
 
-		options.isDryRun = b.cli.BoolOpt("d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
+		options.IsDryRun = b.cli.BoolOpt("d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
 
 		b.cli.Before = func() {
 			os.Setenv("HOSTNAME", *options.Hostname)
 
-			if *options.isDryRun {
+			if *options.IsDryRun {
 				rlog.Trace(1, "This is a dry run!")
 			}
 
@@ -147,7 +147,7 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 				}
 			}
 
-			if *options.isDryRun {
+			if *options.IsDryRun {
 				if b.serviceStarter != nil {
 					err := b.serviceStarter.Stop(false)
 					if err != nil {
@@ -156,7 +156,7 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 					}
 				}
 
-				if *options.isDryRun {
+				if *options.IsDryRun {
 					rlog.Trace(1, "Everything looks fine!")
 				}
 				os.Exit(0)

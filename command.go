@@ -16,7 +16,7 @@ type CommandOptions struct {
 	BindAddress string
 	Wait        int
 	Hostname    string
-	isDryRun    bool
+	IsDryRun    bool
 }
 
 type commandBuilder struct {
@@ -82,12 +82,12 @@ func (b *commandBuilder) Build() cli.CmdInitializer {
 			EnvVar: "HOSTNAME",
 		})
 
-		cmd.BoolOptPtr(&options.isDryRun, "d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
+		cmd.BoolOptPtr(&options.IsDryRun, "d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
 
 		cmd.Before = func() {
 			os.Setenv("HOSTNAME", options.Hostname)
 
-			if options.isDryRun {
+			if options.IsDryRun {
 				rlog.Trace(1, "This is a dry run!")
 			}
 
@@ -106,7 +106,7 @@ func (b *commandBuilder) Build() cli.CmdInitializer {
 				}
 			}
 
-			if options.isDryRun {
+			if options.IsDryRun {
 				if b.serviceStarter != nil {
 					err := b.serviceStarter.Stop(false)
 					if err != nil {
@@ -115,7 +115,7 @@ func (b *commandBuilder) Build() cli.CmdInitializer {
 					}
 				}
 
-				if options.isDryRun {
+				if options.IsDryRun {
 					rlog.Trace(1, "Everything looks fine!")
 				}
 				os.Exit(0)
