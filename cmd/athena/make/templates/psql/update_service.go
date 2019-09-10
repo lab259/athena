@@ -36,7 +36,7 @@ func Update(ctx context.Context, input *UpdateInput) (*UpdateOutput, error) {
 
 	db, err := psqlrscsrv.DefaultPsqlService.DB()
 	if err != nil {
-		return nil, errors.Wrap(err, errors.Code("db-available"), errors.Module("{{.Table}}_service"))
+		return nil, errors.Wrap(err, errors.Code("db-not-available"), errors.Module("{{.Table}}_service"))
 	}
 
 	store := models.New{{.Model}}Store(db)
