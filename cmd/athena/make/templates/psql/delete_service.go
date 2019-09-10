@@ -15,7 +15,7 @@ import (
 
 // DeleteInput holds input information for Delete service
 type DeleteInput struct {
-	{{.Model}} *models.{{.Model}} `+"`"+`validate:"required"`+"`"+`
+	{{.Model}} *models.{{.Model}} `+"`"+`validate:"structonly,required"`+"`"+`
 }
 
 // DeleteOutput holds the output information from Delete service
@@ -32,7 +32,7 @@ func Delete(ctx context.Context, input *DeleteInput) (*DeleteOutput, error) {
 
 	db, err := psqlrscsrv.DefaultPsqlService.DB()
 	if err != nil {
-		return nil, errors.Wrap(err, errors.Code("db-available"), errors.Module("{{.Table}}_service"))
+		return nil, errors.Wrap(err, errors.Code("db-not-available"), errors.Module("{{.Table}}_service"))
 	}
 
 	store := models.New{{.Model}}Store(db)

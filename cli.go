@@ -14,10 +14,14 @@ import (
 )
 
 type CLIOptions struct {
+	Version     string
+	Build       string
+	Environment string
+
 	BindAddress *string
 	Wait        *int
 	Hostname    *string
-	isDryRun    *bool
+	IsDryRun    *bool
 }
 
 type cliBuilder struct {
@@ -29,6 +33,7 @@ type cliBuilder struct {
 	bindAddress    string
 	hostname       string
 	serviceStarter rscsrv.ServiceStarter
+	simple         bool
 }
 
 func NewCLI(name, description string) *cliBuilder {
@@ -73,31 +78,18 @@ func (b *cliBuilder) Hostname(hostname string) *cliBuilder {
 	return b
 }
 
+// Simple will disable all flags and the bootstrap Before.
+func (b *cliBuilder) Simple() *cliBuilder {
+	b.simple = true
+	return b
+}
+
 func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 	var options CLIOptions
 
-	options.BindAddress = b.cli.String(cli.StringOpt{
-		Name:   "B bind-address",
-		Value:  b.bindAddress,
-		Desc:   "The bind address will be used on the HTTP server",
-		EnvVar: "BIND_ADDR",
-	})
-
-	options.Wait = b.cli.Int(cli.IntOpt{
-		Name:   "w wait",
-		Value:  b.wait,
-		Desc:   "Delay in seconds before the initialization",
-		EnvVar: "WAIT",
-	})
-
-	options.Hostname = b.cli.String(cli.StringOpt{
-		Name:   "H hostname",
-		Value:  b.hostname,
-		Desc:   "The name of the station running the app instance",
-		EnvVar: "HOSTNAME",
-	})
-
-	options.isDryRun = b.cli.BoolOpt("d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
+	options.Version = b.version
+	options.Build = b.build
+	options.Environment = b.env
 
 	var version strings.Builder
 	version.WriteString(fmt.Sprintf("Version: %s", b.version))
@@ -106,44 +98,69 @@ func (b *cliBuilder) Build() (*cli.Cli, *CLIOptions) {
 	}
 	b.cli.Version("v version", version.String())
 
-	b.cli.Before = func() {
-		os.Setenv("HOSTNAME", *options.Hostname)
+	if !b.simple {
+		options.BindAddress = b.cli.String(cli.StringOpt{
+			Name:   "B bind-address",
+			Value:  b.bindAddress,
+			Desc:   "The bind address will be used on the HTTP server",
+			EnvVar: "BIND_ADDR",
+		})
 
-		if *options.isDryRun {
-			rlog.Trace(1, "This is a dry run!")
-		}
+		options.Wait = b.cli.Int(cli.IntOpt{
+			Name:   "w wait",
+			Value:  b.wait,
+			Desc:   "Delay in seconds before the initialization",
+			EnvVar: "WAIT",
+		})
 
-		rlog.Infof("Version: %s (%s)", b.version, b.build)
-		rlog.Infof("Environment: %s", b.env)
+		options.Hostname = b.cli.String(cli.StringOpt{
+			Name:   "H hostname",
+			Value:  b.hostname,
+			Desc:   "The name of the station running the app instance",
+			EnvVar: "HOSTNAME",
+		})
 
-		if *options.Wait > 0 {
-			rlog.Infof("  Waiting %d seconds before continue ...", *options.Wait)
-			time.Sleep(time.Duration(*options.Wait) * time.Second)
-			rlog.Info(fmt.Sprintf("    > Waiting %s", "DONE"))
-		}
+		options.IsDryRun = b.cli.BoolOpt("d dry-run", false, "Loads the configuration and check if the dependencies are working (such as database connections)")
 
-		if b.serviceStarter != nil {
-			err := b.serviceStarter.Start()
-			if err != nil {
-				b.serviceStarter.Stop(true)
-				rlog.Critical(err)
-				os.Exit(2)
+		b.cli.Before = func() {
+			os.Setenv("HOSTNAME", *options.Hostname)
+
+			if *options.IsDryRun {
+				rlog.Trace(1, "This is a dry run!")
 			}
-		}
 
-		if *options.isDryRun {
+			rlog.Infof("Version: %s (%s)", b.version, b.build)
+			rlog.Infof("Environment: %s", b.env)
+
+			if *options.Wait > 0 {
+				rlog.Infof("  Waiting %d seconds before continue ...", *options.Wait)
+				time.Sleep(time.Duration(*options.Wait) * time.Second)
+				rlog.Info(fmt.Sprintf("    > Waiting %s", "DONE"))
+			}
+
 			if b.serviceStarter != nil {
-				err := b.serviceStarter.Stop(false)
+				err := b.serviceStarter.Start()
 				if err != nil {
+					b.serviceStarter.Stop(true)
 					rlog.Critical(err)
 					os.Exit(2)
 				}
 			}
 
-			if *options.isDryRun {
-				rlog.Trace(1, "Everything looks fine!")
+			if *options.IsDryRun {
+				if b.serviceStarter != nil {
+					err := b.serviceStarter.Stop(false)
+					if err != nil {
+						rlog.Critical(err)
+						os.Exit(2)
+					}
+				}
+
+				if *options.IsDryRun {
+					rlog.Trace(1, "Everything looks fine!")
+				}
+				os.Exit(0)
 			}
-			os.Exit(0)
 		}
 	}
 
