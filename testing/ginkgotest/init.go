@@ -10,12 +10,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lab259/rlog/v2"
-
 	"github.com/jamillosantos/macchiato"
 	"github.com/lab259/athena/config"
 	"github.com/lab259/athena/testing/envtest"
+	"github.com/lab259/rlog/v2"
 	"github.com/onsi/ginkgo"
+	ginkgoConfig "github.com/onsi/ginkgo/config"
 	"github.com/onsi/ginkgo/reporters"
 	"github.com/onsi/gomega"
 )
@@ -41,6 +41,7 @@ func Init(description string, t *testing.T, loggers ...SetWriter) {
 		dir, _ := os.Getwd()
 		ginkgo.GinkgoWriter.Write([]byte(fmt.Sprintf("CWD: %s\n", dir)))
 		ginkgo.GinkgoWriter.Write([]byte(fmt.Sprintf("ENV: %s\n", os.Getenv("ENV"))))
+		ginkgo.GinkgoWriter.Write([]byte(fmt.Sprintf("Random Seed: %d\n", ginkgoConfig.GinkgoConfig.RandomSeed)))
 		gomega.RegisterFailHandler(ginkgo.Fail)
 
 		if os.Getenv("CI") == "" {
