@@ -15,7 +15,7 @@ import (
 
 // DeleteInput holds input information for Delete service
 type DeleteInput struct {
-	{{.Model}} *models.{{.Model}} `+"`"+`validate:"structonly,required"`+"`"+`
+	{{.Model}} *models.{{.Model}} `+"`"+`validate:"required,structonly"`+"`"+`
 }
 
 // DeleteOutput holds the output information from Delete service
