@@ -15,7 +15,7 @@ require (
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/klauspost/compress v1.7.0 // indirect
-	github.com/lab259/go-rscsrv v0.2.1
+	github.com/lab259/go-rscsrv v0.3.1
 	github.com/lab259/go-rscsrv-mgo v1.1.0
 	github.com/lab259/go-rscsrv-psql v0.3.0
 	github.com/lab259/go-rscsrv-redigo v1.1.0
@@ -32,7 +32,6 @@ require (
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20190611184440-5c40567a22f8 // indirect
-	golang.org/x/net v0.0.0-20190611141213-3f473d35a33a // indirect
 	golang.org/x/sys v0.0.0-20190610200419-93c9922d18ae // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	gopkg.in/gavv/httpexpect.v1 v1.1.0
