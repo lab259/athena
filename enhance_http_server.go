@@ -9,6 +9,7 @@ import (
 
 type enhancedHTTPServer struct {
 	server *http.Server
+	config HTTPConfiguration
 }
 
 func (srv *enhancedHTTPServer) StartWithContext(ctx context.Context) (err error) {
@@ -28,9 +29,25 @@ func (srv *enhancedHTTPServer) StartWithContext(ctx context.Context) (err error)
 	return
 }
 
+func (srv *enhancedHTTPServer) Name() string {
+	return srv.config.Name
+}
+
+// HTTPConfiguration TODO
+type HTTPConfiguration struct {
+	Name string
+}
+
+// EnhancedHTTPServer TODO
+type EnhancedHTTPServer interface {
+	rscsrv.Service
+	rscsrv.StartableWithContext
+}
+
 // EnhanceHTTPServer enhances a http.Server into rscsrv.StartableWithContext.
-func EnhanceHTTPServer(srv *http.Server) rscsrv.StartableWithContext {
+func EnhanceHTTPServer(srv *http.Server, config HTTPConfiguration) EnhancedHTTPServer {
 	return &enhancedHTTPServer{
 		server: srv,
+		config: config,
 	}
 }

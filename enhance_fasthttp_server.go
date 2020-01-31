@@ -29,13 +29,24 @@ func (srv *enhancedFasthttpServer) StartWithContext(ctx context.Context) (err er
 	return
 }
 
+func (srv *enhancedFasthttpServer) Name() string {
+	return srv.config.Name
+}
+
 // FasthttpConfiguration holds additional configuration for the enhanced fasthttp.Server.
 type FasthttpConfiguration struct {
+	Name string
 	Addr string
 }
 
+// EnhancedFasthttpServer TODO
+type EnhancedFasthttpServer interface {
+	rscsrv.Service
+	rscsrv.StartableWithContext
+}
+
 // EnhanceFasthttpServer enhances a fasthttp.Server into rscsrv.StartableWithContext.
-func EnhanceFasthttpServer(server *fasthttp.Server, config FasthttpConfiguration) rscsrv.StartableWithContext {
+func EnhanceFasthttpServer(server *fasthttp.Server, config FasthttpConfiguration) EnhancedFasthttpServer {
 	return &enhancedFasthttpServer{
 		server: server,
 		config: config,
