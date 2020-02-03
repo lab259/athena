@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -57,7 +58,7 @@ func configurationFolder() string {
 }
 
 var (
-	defaultConfigurationUnmarshaler rscsrv.ConfigurationUnmarshaler = &rscsrv.ConfigurationUnmarshalerYaml{}
+	yamlConfigurationUnmarshaler rscsrv.ConfigurationUnmarshaler = &rscsrv.ConfigurationUnmarshalerYaml{}
 )
 
 // Load loads a file to a pointer on the current environment loaded from the
@@ -65,17 +66,24 @@ var (
 //
 // `file` defines which file should be loaded from the environment.
 // `dst` is a pointer.
-func Load(file string, dst interface{}) error {
+func Load(fileOrPrefix string, dst interface{}) error {
 	loader := rscsrv.NewFileConfigurationLoader(configurationFolder())
 
-	name := strings.TrimSuffix(file, filepath.Ext(file))
+	ext := filepath.Ext(fileOrPrefix)
+	name := strings.TrimSuffix(fileOrPrefix, ext)
 
-	config, err := loader.Load(file)
-	if err != nil {
-		return err
-	}
-
-	if err := defaultConfigurationUnmarshaler.Unmarshal(config, dst); err != nil {
+	if config, err := loader.Load(fileOrPrefix); err == nil {
+		var err error
+		switch ext {
+		case ".yaml", ".yml":
+			err = yamlConfigurationUnmarshaler.Unmarshal(config, dst)
+		default:
+			err = fmt.Errorf("unexpected file extension: %s", ext)
+		}
+		if err != nil {
+			return err
+		}
+	} else if !os.IsNotExist(err) {
 		return err
 	}
 

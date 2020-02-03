@@ -1,8 +1,10 @@
 package athena
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
 	"time"
 
 	cli "github.com/jawher/mow.cli"
@@ -20,31 +22,18 @@ type CommandOptions struct {
 }
 
 type commandBuilder struct {
-	wait           int
-	bindAddress    string
-	hostname       string
-	serviceStarter rscsrv.ServiceStarter
-	action         CommandAction
+	wait     int
+	hostname string
+	services []rscsrv.Service
 }
 
-func NewCommand(action CommandAction) *commandBuilder {
+func NewCommand(services ...rscsrv.Service) *commandBuilder {
 	hostname, _ := os.Hostname()
 	return &commandBuilder{
-		action:      action,
-		bindAddress: "127.0.0.1:3000",
-		wait:        0,
-		hostname:    hostname,
+		services: services,
+		wait:     0,
+		hostname: hostname,
 	}
-}
-
-func (b *commandBuilder) ServiceStarter(serviceStarter rscsrv.ServiceStarter) *commandBuilder {
-	b.serviceStarter = serviceStarter
-	return b
-}
-
-func (b *commandBuilder) BindAddress(bindAddress string) *commandBuilder {
-	b.bindAddress = bindAddress
-	return b
 }
 
 func (b *commandBuilder) Wait(wait int) *commandBuilder {
@@ -58,15 +47,10 @@ func (b *commandBuilder) Hostname(hostname string) *commandBuilder {
 }
 
 func (b *commandBuilder) Build() cli.CmdInitializer {
+	serviceStarter := rscsrv.DefaultServiceStarter(b.services...)
+
 	return cli.CmdInitializer(func(cmd *cli.Cmd) {
 		var options CommandOptions
-
-		cmd.StringPtr(&options.BindAddress, cli.StringOpt{
-			Name:   "B bind-address",
-			Value:  b.bindAddress,
-			Desc:   "The bind address will be used on the HTTP server",
-			EnvVar: "BIND_ADDR",
-		})
 
 		cmd.IntPtr(&options.Wait, cli.IntOpt{
 			Name:   "w wait",
@@ -97,24 +81,8 @@ func (b *commandBuilder) Build() cli.CmdInitializer {
 				rlog.Info(fmt.Sprintf("    > Waiting %s", "DONE"))
 			}
 
-			if b.serviceStarter != nil {
-				err := b.serviceStarter.Start()
-				if err != nil {
-					b.serviceStarter.Stop(true)
-					rlog.Critical(err)
-					os.Exit(2)
-				}
-			}
-
 			if options.IsDryRun {
-				if b.serviceStarter != nil {
-					err := b.serviceStarter.Stop(false)
-					if err != nil {
-						rlog.Critical(err)
-						os.Exit(2)
-					}
-				}
-
+				// TODO(felipemfp): figure out how to use dry run (if it is useful? maybe go thru services and try to .Load and .ApplyConfiguration?)
 				if options.IsDryRun {
 					rlog.Trace(1, "Everything looks fine!")
 				}
@@ -123,7 +91,23 @@ func (b *commandBuilder) Build() cli.CmdInitializer {
 		}
 
 		cmd.Action = func() {
-			b.action(&options)
+			var exitCode int
+
+			signals := make(chan os.Signal, 1)
+			signal.Notify(signals, os.Interrupt)
+
+			go func() {
+				<-signals
+				serviceStarter.Stop(true)
+			}()
+
+			if err := serviceStarter.Start(); err != context.Canceled {
+				exitCode = 2
+				serviceStarter.Stop(true)
+			}
+
+			serviceStarter.Wait()
+			os.Exit(exitCode)
 		}
 	})
 
