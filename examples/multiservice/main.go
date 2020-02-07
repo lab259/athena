@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/lab259/athena"
-	fasthttprscsrv "github.com/lab259/athena/rscsrv/fasthttp"
-	hermesrscsrv "github.com/lab259/athena/rscsrv/hermes"
 	"github.com/lab259/hermes"
 	"github.com/valyala/fasthttp"
+
+	fasthttprscsrv "github.com/lab259/athena/rscsrv/fasthttp"
 )
 
 type serviceA struct{}
@@ -43,10 +43,10 @@ func main() {
 	router.Get("/version", func(_ hermes.Request, res hermes.Response) hermes.Result {
 		return res.Data(map[string]string{"version": "v0.1.0"})
 	})
-	hermesService := hermesrscsrv.EnhanceHermesRouter(router, hermesrscsrv.ServiceConfiguration{})
+	hermesService := hermes.NewApplication(hermes.ApplicationConfig{}, router)
 
 	// 3. create an project cli
-	cli, opt := athena.NewCLI("serviceapp", `Service Example`).
+	cli, opt := athena.NewCLI("service", `Service Example`).
 		Version("v0.1.0", "da39a3ee5e6b4b0d3255bfef95601890afd80709").
 		Simple().
 		Build()
