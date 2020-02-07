@@ -12,14 +12,14 @@ build:
 	@$(foreach example,$(EXAMPLES),go build "-ldflags=$(LDFLAGS) -s -w" -o ./bin/$(example) -v ./examples/$(example) &&) :
 
 test:
-	@ginkgo --failFast ./...
+	@go run github.com/onsi/ginkgo/ginkgo --failFast ./...
 
 test-watch:
-	@ginkgo watch -cover -r ./...
+	@go run github.com/onsi/ginkgo/ginkgo watch -cover -r ./...
 
 coverage-ci:
 	@mkdir -p $(COVERDIR)
-	@ginkgo -r -covermode=count --cover --randomizeAllSpecs --randomizeSuites --failOnPending --trace --compilers=2
+	@go run github.com/onsi/ginkgo/ginkgo -r -covermode=count --cover --randomizeAllSpecs --randomizeSuites --failOnPending --trace --compilers=2
 	@echo "mode: count" > "${COVERAGEFILE}"
 	@find . -type f -name '*.coverprofile' -exec cat {} \; -exec rm -f {} \; | grep -h -v "^mode:" >> ${COVERAGEFILE}
 

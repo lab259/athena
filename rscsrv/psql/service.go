@@ -12,6 +12,7 @@ type PsqlService interface {
 	rscsrv.Service
 	rscsrv.Configurable
 	rscsrv.Startable
+	rscsrv.Stoppable
 	DB() (*sql.DB, error)
 	Ping() error
 }

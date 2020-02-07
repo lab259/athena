@@ -56,6 +56,22 @@ var _ = Describe("Load", func() {
 			return nil
 		})
 	})
+
+	It("should load from environment variables", func() {
+		envtest.With(map[string]string{
+			"SERVICE_NAME":    "Another",
+			"SERVICE_PORT":    "9865",
+			"SERVICE_TIMEOUT": "7s",
+		}, func() error {
+			var srvConfig ServiceConfiguration
+			Expect(config.Load("service", &srvConfig)).To(Succeed())
+
+			Expect(srvConfig.Name).To(Equal("Another"))
+			Expect(srvConfig.Port).To(Equal(9865))
+			Expect(srvConfig.Timeout).To(Equal(7 * time.Second))
+			return nil
+		})
+	})
 })
 
 func projectFolder() string {
