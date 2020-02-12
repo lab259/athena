@@ -3,6 +3,7 @@ package httprscsrv
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/lab259/athena/config"
 	rscsrv "github.com/lab259/go-rscsrv"
@@ -38,12 +39,21 @@ func (srv *enhanceHttpServer) StartWithContext(ctx context.Context) (err error) 
 
 	go func() {
 		<-ctx.Done()
-		err = srv.server.Close()
+
+		// TODO: make this ctx timeout configurable
+		shutdownCtx, cancelShutdown := context.WithTimeout(context.Background(), time.Second*20)
+		defer cancelShutdown()
+
+		errShutdown := srv.server.Shutdown(shutdownCtx)
+		if errShutdown != nil {
+			err = errShutdown
+		}
 		close(done)
 	}()
 
-	if err := srv.server.ListenAndServe(); err != nil {
-		return err
+	if errListen := srv.server.ListenAndServe(); errListen != nil {
+		err = errListen
+		return
 	}
 
 	<-done
